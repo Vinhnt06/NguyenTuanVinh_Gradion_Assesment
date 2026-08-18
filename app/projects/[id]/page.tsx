@@ -3,10 +3,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import Stepper from '@/components/Stepper';
-import CharacterCard from '@/components/CharacterCard';
-import ChapterCard from '@/components/ChapterCard';
-import StepAction from '@/components/StepAction';
+import { motion } from 'motion/react';
+import Stepper from '@/components/pipeline/Stepper';
+import CharacterCard from '@/components/cards/CharacterCard';
+import ChapterCard from '@/components/cards/ChapterCard';
+import StepAction from '@/components/pipeline/StepAction';
+import { ToastProvider, useToast } from '@/components/ui/Toast';
+import SkeletonLoader from '@/components/ui/SkeletonLoader';
 
 interface ProjectState {
   id: string;
@@ -27,10 +30,11 @@ interface ProjectState {
   };
 }
 
-export default function ProjectDetailPage() {
+function ProjectDetailContent() {
   const router = useRouter();
   const params = useParams();
   const projectId = params.id as string;
+  const { showToast } = useToast();
 
   const [project, setProject] = useState<ProjectState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +84,8 @@ export default function ProjectDetailPage() {
     setError('');
 
     try {
+      showToast(`Executing Step ${step + 1}...`, 'Communicating with Gemini AI API', 'info');
+
       const res = await fetch(`/api/projects/${projectId}/steps/${step}/run`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,8 +98,10 @@ export default function ProjectDetailPage() {
       }
 
       setProject(data.project);
+      showToast(`Step ${step + 1} Succeeded!`, 'Atomic result saved to disk', 'success');
     } catch (err: any) {
       setError(err.message);
+      showToast(`Step ${step + 1} Failed`, err.message, 'error');
       fetchProject();
     } finally {
       setActionLoading(false);
@@ -115,8 +123,10 @@ export default function ProjectDetailPage() {
       }
 
       setProject(data.project);
+      showToast(`Step ${step + 1} Reset`, 'State recovered from stuck execution', 'info');
     } catch (err: any) {
       setError(err.message);
+      showToast('Reset Error', err.message, 'error');
     } finally {
       setActionLoading(false);
     }
@@ -124,18 +134,20 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center text-sm text-[#919699]">
-        Loading project pipeline...
+      <div className="min-h-screen bg-[#F8F8F8] flex flex-col items-center justify-center p-6 space-y-4">
+        <SkeletonLoader className="w-64 h-8 rounded-xl" />
+        <SkeletonLoader className="w-96 h-4 rounded-lg" />
+        <div className="text-xs text-[#919699] font-mono">Loading studio workspace...</div>
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#F8F8F8] p-8 text-center">
-        <p className="text-red-600 mb-4">{error || 'Project not found'}</p>
+      <div className="min-h-screen bg-[#F8F8F8] p-8 text-center flex flex-col items-center justify-center">
+        <p className="text-red-600 mb-4 font-semibold">{error || 'Project not found'}</p>
         <Link href="/projects" className="text-[#FF6B00] hover:underline text-sm font-semibold">
-          ← Back to Projects
+          ← Back to Projects Catalog
         </Link>
       </div>
     );
@@ -151,140 +163,204 @@ export default function ProjectDetailPage() {
   return (
     <div className="min-h-screen bg-[#F8F8F8] text-[#231F20] pb-16">
       {/* Header Bar */}
-      <header className="border-b border-[#BAB7B1] bg-[#F2EEE7] px-6 py-4">
-        <div className="max-w-[1100px] mx-auto flex justify-between items-center">
+      <header className="border-b border-[#BAB7B1] bg-[#F2EEE7] px-6 py-4 sticky top-0 z-30 shadow-2xs backdrop-blur-md bg-[#F2EEE7]/90">
+        <div className="max-w-[1280px] mx-auto flex justify-between items-center">
           <Link
             href="/projects"
-            className="text-xs font-semibold text-[#595959] hover:text-[#FF6B00] transition-colors"
+            className="text-xs font-semibold text-[#595959] hover:text-[#FF6B00] transition-colors flex items-center gap-1"
           >
-            ← Back to Projects
+            ← Catalog
           </Link>
           <div className="text-right">
-            <span className="text-xs font-semibold text-[#919699] uppercase tracking-wider block">
-              PIPELINE STUDIO
+            <span className="text-[10px] font-mono font-bold text-[#FF6B00] uppercase tracking-widest block">
+              STUDIO WORKSPACE
             </span>
-            <span className="text-xs text-[#595959]">
+            <span className="text-[11px] text-[#595959] font-mono">
               Created {new Date(project.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="max-w-[1100px] mx-auto p-6 mt-4">
-        {/* Project Title & Status */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-[#231F20] mb-2">{project.title}</h1>
+      {/* Main Content Area — Two Columns Layout */}
+      <main className="max-w-[1280px] mx-auto p-6 lg:p-8 mt-2">
+        {/* Project Title */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#BAB7B1]/40 pb-4">
+          <div>
+            <span className="text-[11px] font-bold text-[#919699] uppercase tracking-wider block">
+              ACTIVE BOOK PIPELINE
+            </span>
+            <h1 className="text-3xl font-extrabold text-[#231F20] tracking-tight">{project.title}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono px-3 py-1 bg-[#F2EEE7] border border-[#BAB7B1] rounded-full font-bold">
+              ID: {project.id.substring(0, 8)}...
+            </span>
+          </div>
         </div>
 
         {/* 5-Step Stepper Bar */}
         <Stepper currentStep={currentStep} stepStates={project.stepStates} />
 
-        {/* Step Action Bar */}
-        <StepAction
-          currentStep={currentStep}
-          stepState={currentStepState}
-          stepError={project.stepError}
-          stepStartedAt={project.stepStartedAt}
-          onRunStep={handleRunStep}
-          onRetryStep={handleRunStep}
-          onResetStep={handleResetStep}
-          loading={actionLoading}
-        />
-
-        {/* Optional Custom Style Input for Step 0 */}
-        {currentStep === 0 && currentStepState !== 'done' && (
-          <div className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-xl p-5 mb-8">
-            <label className="block text-xs font-semibold text-[#231F20] mb-1">
-              Custom Art Style (Optional)
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Vintage Victorian woodcut illustration, muted sepia tone"
-              value={userStyle}
-              onChange={(e) => setUserStyle(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white border border-[#BAB7B1] rounded-lg text-sm text-[#231F20] focus:outline-none focus:border-[#FF6B00]"
+        {/* Workspace Layout Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column (Main Pipeline Action & Generated Art - 8 Cols) */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Step Action Command Center */}
+            <StepAction
+              currentStep={currentStep}
+              stepState={currentStepState}
+              stepError={project.stepError}
+              stepStartedAt={project.stepStartedAt}
+              onRunStep={handleRunStep}
+              onRetryStep={handleRunStep}
+              onResetStep={handleResetStep}
+              loading={actionLoading}
             />
-            <p className="text-[11px] text-[#919699] mt-1">
-              Leave blank to let Gemini analyze the book text and auto-generate an art style.
-            </p>
-          </div>
-        )}
 
-        {/* Art Style Display Card */}
-        {styleResult && (
-          <div className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-xl p-6 mb-8">
-            <h3 className="text-sm font-bold text-[#919699] uppercase tracking-wider mb-1">
-              Generated Art Style
-            </h3>
-            <p className="text-base font-semibold text-[#231F20] leading-relaxed">
-              &quot;{styleResult}&quot;
-            </p>
-          </div>
-        )}
-
-        {/* Characters Grid (Max 2) */}
-        {characters.length > 0 && (
-          <section className="mb-10">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Main Characters (Max 2)</h3>
-              <span className="text-xs font-semibold text-[#919699]">
-                Portraits: Step {project.stepStates[2] === 'done' ? 'Completed' : '2'}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {characters.map((char, idx) => (
-                <CharacterCard
-                  key={idx}
-                  character={char}
-                  isGenerating={project.stepStates[2] === 'running'}
+            {/* Optional Custom Style Input for Step 0 */}
+            {currentStep === 0 && currentStepState !== 'done' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-2xl p-6 shadow-xs"
+              >
+                <label className="block text-xs font-bold text-[#231F20] mb-1.5">
+                  Custom Art Style Prompt (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Vintage Victorian woodcut illustration, muted sepia tone"
+                  value={userStyle}
+                  onChange={(e) => setUserStyle(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-[#BAB7B1] rounded-xl text-sm text-[#231F20] focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-colors"
                 />
-              ))}
-            </div>
-          </section>
-        )}
+                <p className="text-[11px] text-[#919699] mt-1.5 leading-normal">
+                  Leave blank to let Gemini AI analyze the book text and auto-generate the optimal art style direction.
+                </p>
+              </motion.div>
+            )}
 
-        {/* Chapters Grid (Max 1) */}
-        {chapters.length > 0 && (
-          <section className="mb-10">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Chapter Scene Illustration (Max 1)</h3>
-              <span className="text-xs font-semibold text-[#919699]">
-                Illustration: Step {project.stepStates[4] === 'done' ? 'Completed' : '4'}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-6">
-              {chapters.map((chap, idx) => (
-                <ChapterCard
-                  key={idx}
-                  chapter={chap}
-                  isGenerating={project.stepStates[4] === 'running'}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+            {/* Art Style Display Card */}
+            {styleResult && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-[#231F20] text-white rounded-2xl p-6 shadow-md border border-[#FF6B00]/20 relative overflow-hidden"
+              >
+                <div className="text-[10px] font-mono font-bold text-[#FF6B00] uppercase tracking-widest mb-1.5">
+                  STEP 1 RESULT · ART STYLE DIRECTION
+                </div>
+                <p className="text-base font-semibold leading-relaxed text-white/95 italic">
+                  &quot;{styleResult}&quot;
+                </p>
+              </motion.div>
+            )}
 
-        {/* Book Text Section (Readable in full) */}
-        <section className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-2xl p-6 mt-8">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-bold">Book Text</h3>
-            <button
-              onClick={() => setShowFullBook(!showFullBook)}
-              className="text-xs font-semibold text-[#FF6B00] hover:underline"
-            >
-              {showFullBook ? 'Collapse Text' : 'Expand Full Text'}
-            </button>
+            {/* Characters Section (Max 2) */}
+            {characters.length > 0 && (
+              <section className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold tracking-tight">Main Characters (Max 2)</h3>
+                  <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-[#FF6B00]/10 text-[#FF6B00] rounded">
+                    Portraits: {project.stepStates[2] === 'done' ? 'Generated ✓' : 'Pending Step 3'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {characters.map((char, idx) => (
+                    <CharacterCard
+                      key={idx}
+                      character={char}
+                      isGenerating={project.stepStates[2] === 'running'}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Chapters Section (Max 1) */}
+            {chapters.length > 0 && (
+              <section className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold tracking-tight">Chapter Scene Illustration (Max 1)</h3>
+                  <span className="text-xs font-mono font-bold px-2.5 py-0.5 bg-[#231F20] text-white rounded">
+                    Illustration: {project.stepStates[4] === 'done' ? 'Generated ✓' : 'Pending Step 5'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-6">
+                  {chapters.map((chap, idx) => (
+                    <ChapterCard
+                      key={idx}
+                      chapter={chap}
+                      isGenerating={project.stepStates[4] === 'running'}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
-          <div
-            className={`bg-white border border-[#BAB7B1] rounded-xl p-4 font-mono text-xs text-[#434343] whitespace-pre-wrap leading-relaxed ${
-              showFullBook ? 'max-h-[600px] overflow-y-auto' : 'max-h-[160px] overflow-hidden'
-            }`}
-          >
-            {project.bookText}
+
+          {/* Right Column (Sidebar Summary & Book Text - 4 Cols) */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Pipeline Status Summary Card */}
+            <div className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-2xl p-6 shadow-xs">
+              <h3 className="text-xs font-bold text-[#919699] uppercase tracking-wider mb-4">
+                Pipeline Specifications
+              </h3>
+              <div className="space-y-3 text-xs leading-relaxed">
+                <div className="flex justify-between py-1.5 border-b border-[#BAB7B1]/40">
+                  <span className="text-[#595959]">Gemini Model:</span>
+                  <span className="font-mono font-bold text-[#231F20]">gemini-flash-latest</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-[#BAB7B1]/40">
+                  <span className="text-[#595959]">Max Characters:</span>
+                  <span className="font-mono font-bold text-[#231F20]">2 (Server Validated)</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-[#BAB7B1]/40">
+                  <span className="text-[#595959]">Max Chapters:</span>
+                  <span className="font-mono font-bold text-[#231F20]">1 (Server Validated)</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-[#BAB7B1]/40">
+                  <span className="text-[#595959]">State Storage:</span>
+                  <span className="font-mono font-bold text-[#231F20]">Atomic JSON File</span>
+                </div>
+                <div className="flex justify-between py-1.5">
+                  <span className="text-[#595959]">Concurrency Guard:</span>
+                  <span className="font-mono font-bold text-[#FF6B00]">409 Conflict Shield</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Book Text Section (Collapsible Accordion) */}
+            <section className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-2xl p-6 shadow-xs">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-bold text-[#231F20]">Book Context Text</h3>
+                <button
+                  onClick={() => setShowFullBook(!showFullBook)}
+                  className="text-xs font-semibold text-[#FF6B00] hover:underline focus:outline-none"
+                >
+                  {showFullBook ? 'Collapse' : 'Expand'}
+                </button>
+              </div>
+              <div
+                className={`bg-white border border-[#BAB7B1] rounded-xl p-4 font-mono text-xs text-[#434343] whitespace-pre-wrap leading-relaxed transition-all ${
+                  showFullBook ? 'max-h-[500px] overflow-y-auto' : 'max-h-[160px] overflow-hidden'
+                }`}
+              >
+                {project.bookText}
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
       </main>
     </div>
+  );
+}
+
+export default function ProjectDetailPage() {
+  return (
+    <ToastProvider>
+      <ProjectDetailContent />
+    </ToastProvider>
   );
 }
