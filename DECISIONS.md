@@ -74,8 +74,22 @@
 
 ---
 
+## Decision 7: Plus Jakarta Sans / Geist & Motion Physics for Premium Refined UI (AI Override)
+
+**Who proposed it:** Gemini AI initially suggested using standard Inter font and standard CSS transition utility classes to keep the bundle small.
+
+**Why I pushed back:** Inter font is the #1 default AI cliché tell identified in the `@frontend-specialist` agent protocol. Similarly, static CSS transitions lack tactile spring feedback, making an AI generative studio feel static and cheap.
+
+**What I implemented instead:** 
+1. **Typography Upgrade:** Adopted `Plus_Jakarta_Sans` & `JetBrains_Mono` via Next.js `next/font/google` (zero render-blocking layout shifts) to deliver a distinct studio identity.
+2. **Asymmetric Layout:** Redesigned the Login page into an asymmetric 70/50 split layout with dynamic brand highlights rather than a centered box.
+3. **Tactile Spring Physics:** Integrated `motion/react` with spring physics for micro-interactions (`whileTap: scale(0.97)`, `whileHover: scale(1.02)`) and progressive stagger reveals (`whileInView`).
+
+---
+
 ## If You Had One More Day
 
-If I had one more day, I would implement **Server-Sent Events (SSE) for real-time step progress**.
+If I had one more day, I would implement **Server-Sent Events (SSE) for real-time step progress** and **Interactive Image Editing**.
 
-Currently the UI polls `GET /api/projects/:id` every 2 seconds, which works but creates ~2s lag and unnecessary HTTP overhead. SSE would let the server push updates directly to the client: each portrait image would appear the moment it's saved to disk, without the user waiting for the next poll cycle. This would transform Step 2 (Portraits) from a "wait and see" experience into a live, visual reveal — character 1 appears, then character 2 — which matches the per-item progress behavior described in §4.4 of the spec. SSE also sets the groundwork for eventually pushing chapter animation frames from the Veo step in the notebook's bonus sections.
+Currently the UI polls `GET /api/projects/:id` every 2 seconds, which works cleanly but creates ~2s lag. SSE would push updates directly as each image lands on disk. Additionally, I would add a canvas cropping tool allowing users to tweak generated portraits directly in the studio workspace.
+
