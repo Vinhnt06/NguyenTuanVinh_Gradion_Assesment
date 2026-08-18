@@ -117,10 +117,12 @@ export async function generateText(params: {
 
 /**
  * Generate an image using Imagen / Gemini model or resilient vector artwork SVG fallback
+ * Supports both '3:4' (portrait character) and '16:9' (landscape chapter scene) aspect ratios
  */
 export async function generateAndSaveImage(
   prompt: string,
-  outputPath: string
+  outputPath: string,
+  aspectRatio: '3:4' | '16:9' = '3:4'
 ): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY is missing');
@@ -140,7 +142,7 @@ export async function generateAndSaveImage(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           instances: [{ prompt }],
-          parameters: { sampleCount: 1, aspectRatio: '3:4' },
+          parameters: { sampleCount: 1, aspectRatio },
         }),
       });
 
@@ -158,11 +160,49 @@ export async function generateAndSaveImage(
     }
   }
 
-  // Fallback Vector SVG Artwork Card (3:4 aspect ratio, 600x800 viewBox)
   const escapedPrompt = prompt.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const shortTitle = prompt.substring(0, 40) + (prompt.length > 40 ? '...' : '');
+  const shortTitle = prompt.substring(0, 45) + (prompt.length > 45 ? '...' : '');
 
-  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  let svgContent: string;
+
+  if (aspectRatio === '16:9') {
+    // Horizontal Landscape SVG Artwork (16:9 ratio - 960x540 viewBox)
+    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141418" />
+      <stop offset="45%" stop-color="#2B160C" />
+      <stop offset="100%" stop-color="#FF6B00" />
+    </linearGradient>
+    <radialGradient id="glow" cx="60%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFA861" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#FF6B00" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="960" height="540" rx="24" fill="url(#bgGrad)" />
+  <circle cx="580" cy="270" r="240" fill="url(#glow)" />
+  
+  <!-- Outer Frame Line -->
+  <rect x="35" y="35" width="890" height="470" rx="18" fill="none" stroke="#FFA861" stroke-width="2" stroke-dasharray="8 6" opacity="0.35" />
+  
+  <!-- Central Art Landscape Glyph -->
+  <circle cx="580" cy="250" r="70" fill="#FF6B00" opacity="0.9" />
+  <path d="M545 250 L580 190 L615 250 L580 310 Z" fill="#FFFFFF" opacity="0.95" />
+
+  <!-- Studio Header Tag -->
+  <rect x="60" y="55" width="240" height="30" rx="6" fill="#FF6B00" opacity="0.2" />
+  <text x="72" y="75" font-family="sans-serif" font-size="11" font-weight="bold" fill="#FFA861" letter-spacing="1.5">CHAPTER SCENE LANDSCAPE</text>
+
+  <!-- Bottom Caption Container -->
+  <rect x="60" y="400" width="840" height="85" rx="14" fill="#141416" opacity="0.92" stroke="#33333E" stroke-width="1" />
+  <text x="80" y="426" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FF6B00" letter-spacing="1.5">CHAPTER SCENE ILLUSTRATION (16:9)</text>
+  <text x="80" y="452" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFFFFF">${shortTitle}</text>
+  <text x="80" y="474" font-family="sans-serif" font-size="11" fill="#919699">${escapedPrompt.substring(0, 95)}...</text>
+</svg>`;
+  } else {
+    // Vertical Portrait SVG Artwork (3:4 ratio - 600x800 viewBox)
+    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1A1819" />
@@ -187,7 +227,7 @@ export async function generateAndSaveImage(
 
   <!-- Studio Header Tag -->
   <rect x="70" y="60" width="220" height="30" rx="6" fill="#FF6B00" opacity="0.2" />
-  <text x="82" y="80" font-family="sans-serif" font-size="11" font-weight="bold" fill="#FFA861" letter-spacing="1.5">STUDIO VISUAL ARTWORK</text>
+  <text x="82" y="80" font-family="sans-serif" font-size="11" font-weight="bold" fill="#FFA861" letter-spacing="1.5">CHARACTER PORTRAIT (3:4)</text>
 
   <!-- Bottom Caption Container -->
   <rect x="50" y="640" width="500" height="100" rx="16" fill="#141416" opacity="0.92" stroke="#33333E" stroke-width="1" />
@@ -195,6 +235,7 @@ export async function generateAndSaveImage(
   <text x="70" y="698" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFFFFF">${shortTitle}</text>
   <text x="70" y="722" font-family="sans-serif" font-size="11" fill="#919699">${escapedPrompt.substring(0, 65)}...</text>
 </svg>`;
+  }
 
   // Write SVG file or replace .png path with .svg
   const svgPath = outputPath.endsWith('.png') ? outputPath.replace(/\.png$/, '.svg') : outputPath;

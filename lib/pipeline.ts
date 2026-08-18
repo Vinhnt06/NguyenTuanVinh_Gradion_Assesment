@@ -241,7 +241,7 @@ export async function executePipelineStep(
           const imagePath = path.join(projectDir, imageFileName);
 
           try {
-            const savedPath = await generateAndSaveImage(fullPrompt, imagePath);
+            const savedPath = await generateAndSaveImage(fullPrompt, imagePath, '16:9');
             const savedFileName = path.basename(savedPath);
             const relativePath = `/api/projects/${projectId}/images/${savedFileName}`;
             illustrations.push({ ...chap, illustrationPath: relativePath });
