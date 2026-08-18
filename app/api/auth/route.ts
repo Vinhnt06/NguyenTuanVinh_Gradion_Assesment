@@ -1,5 +1,17 @@
 import { NextResponse } from 'next/server';
-import { hashEmail, signToken, COOKIE_NAME } from '@/lib/auth';
+import { hashEmail, signToken, COOKIE_NAME, getSessionFromCookies } from '@/lib/auth';
+
+export async function GET() {
+  try {
+    const session = await getSessionFromCookies();
+    if (!session) {
+      return NextResponse.json({ authenticated: false }, { status: 200 });
+    }
+    return NextResponse.json({ authenticated: true, user: session }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ authenticated: false }, { status: 200 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +31,7 @@ export async function POST(request: Request) {
     const token = signToken(userSession);
 
     const response = NextResponse.json({ success: true, user: userSession });
-    
+
     // Set HTTP-only session cookie
     response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
