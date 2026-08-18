@@ -62,11 +62,18 @@ The pipeline follows Google's Gemini notebook workflow (`Book_illustration.ipynb
 
 ---
 
+## 🌟 Bonus Features Implemented (§08)
+
+- **Automated CI/CD Pipeline (`.github/workflows/ci.yml`):** Runs ESLint, `./test.sh` test suite, and Next.js production build automatically on every push and pull request to `main`.
+
+---
+
 ## 📂 Deliverables Checklist
 
 - `README.md` — Project architecture & startup guide
 - `DECISIONS.md` — Architectural trade-offs & ≥3 explicit AI overrides
 - `TESTING.md` — Testing strategy & real terminal test report
+- `.github/workflows/ci.yml` — Automated GitHub Actions CI pipeline
 - `start.sh` — Single command to install & launch app
 - `test.sh` — Single command to run test suite
 - `.env.example` — Environment template (no secrets committed)
