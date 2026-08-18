@@ -19,16 +19,22 @@ export async function GET(
   
   let targetPath = path.join(projectDir, safeFilename);
 
-  // Check if file exists; if requested .png doesn't exist, check for .svg fallback on disk
+  // Check if file exists; if requested file doesn't exist, check for .jpg or .svg on disk
   try {
     await fs.access(targetPath);
   } catch {
-    const svgPath = targetPath.replace(/\.png$/, '.svg');
+    const jpgPath = targetPath.replace(/\.(png|svg)$/, '.jpg');
+    const svgPath = targetPath.replace(/\.(png|jpg)$/, '.svg');
     try {
-      await fs.access(svgPath);
-      targetPath = svgPath;
+      await fs.access(jpgPath);
+      targetPath = jpgPath;
     } catch {
-      // Keep targetPath for 404 handler below
+      try {
+        await fs.access(svgPath);
+        targetPath = svgPath;
+      } catch {
+        // Keep targetPath for 404 handler below
+      }
     }
   }
 

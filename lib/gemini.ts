@@ -116,7 +116,7 @@ export async function generateText(params: {
 }
 
 /**
- * Generate an image using Imagen / Gemini model or resilient vector artwork SVG fallback
+ * Generate an image using Google Imagen / FLUX.1 AI Model API or resilient vector artwork SVG fallback
  * Supports both '3:4' (portrait character) and '16:9' (landscape chapter scene) aspect ratios
  */
 export async function generateAndSaveImage(
@@ -129,6 +129,7 @@ export async function generateAndSaveImage(
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
+  // 1. Try Google Imagen REST API endpoints first
   const imagenEndpoints = [
     'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict',
     'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict',
@@ -156,10 +157,40 @@ export async function generateAndSaveImage(
         }
       }
     } catch (err) {
-      // Try next endpoint or proceed to fallback
+      // Proceed to FLUX.1 AI Engine
     }
   }
 
+  // 2. Try FLUX.1 High Definition AI Model API (Pollinations Engine)
+  try {
+    const width = aspectRatio === '16:9' ? 960 : 600;
+    const height = aspectRatio === '16:9' ? 540 : 800;
+    const seed = Math.floor(Math.random() * 1000000);
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+      prompt
+    )}?width=${width}&height=${height}&model=flux&seed=${seed}&nologo=true`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+
+    const fluxRes = await fetch(pollinationsUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (fluxRes.ok) {
+      const arrayBuffer = await fluxRes.arrayBuffer();
+      if (arrayBuffer.byteLength > 1000) {
+        const jpgPath = outputPath.endsWith('.png')
+          ? outputPath.replace(/\.png$/, '.jpg')
+          : outputPath;
+        await fs.writeFile(jpgPath, Buffer.from(arrayBuffer));
+        return jpgPath;
+      }
+    }
+  } catch (err: any) {
+    console.warn('FLUX AI image generation timed out or failed, using SVG fallback:', err.message);
+  }
+
+  // 3. Fallback Vector SVG Artwork Card (Ensures pipeline never fails offline)
   const escapedPrompt = prompt.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const shortTitle = prompt.substring(0, 45) + (prompt.length > 45 ? '...' : '');
 
