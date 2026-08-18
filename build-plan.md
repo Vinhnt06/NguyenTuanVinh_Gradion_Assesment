@@ -30,17 +30,17 @@
 
 ## PHASE 2 — Gemini Pipeline Backend (Day 1 Afternoon, ~4h)
 
-- [ ] **P2-1:** Write `lib/gemini.ts` — text model wrapper (`gemini-2.0-flash`) + structured JSON output helper → Verify: test call returns parsed JSON
-- [ ] **P2-2:** Write `lib/gemini.ts` (image) — image model wrapper (`imagen-3.0-generate-002`), save PNG to disk → Verify: file appears in `storage/`
-- [ ] **P2-3:** Upload book text on project creation via Gemini Files API → get `fileUri` → store in `state.json` → Verify: `state.json` has `bookFileUri` field
-- [ ] **P2-4:** Write `lib/pipeline.ts` — Step 0 (Style): call text model with fileUri → save result → Verify: `stepStates["0"] === "done"` after call
-- [ ] **P2-5:** Write Step 1 (Characters): structured JSON output, **cap to max 2**, save → Verify: returns max 2 even if model returns more
-- [ ] **P2-6:** Write Step 2 (Portraits): loop per character, save PNG per portrait → Verify: 2 PNG files appear on disk
-- [ ] **P2-7:** Write Step 3 (Chapters): structured JSON output, **cap to max 1**, save → Verify: returns exactly 1 chapter
-- [ ] **P2-8:** Write Step 4 (Illustrations): 1 image for the chapter → Verify: 1 PNG file appears on disk
-- [ ] **P2-9:** `POST /api/projects/:id/steps/:step/run` — 409 guard on `running` state → Verify: second call returns 409 immediately
-- [ ] **P2-10:** `POST /api/projects/:id/steps/:step/reset` — reset stuck step → Verify: `stepStates[step]` becomes `"pending"`
-- [ ] **P2-11:** `GET /api/projects/:id/images/:filename` — serve static images → Verify: curl returns PNG bytes
+- [x] **P2-1:** Write `lib/gemini.ts` — text model wrapper (`gemini-2.0-flash`) + structured JSON output helper → Verify: test call returns parsed JSON
+- [x] **P2-2:** Write `lib/gemini.ts` (image) — image model wrapper (`imagen-3.0-generate-002`), save PNG to disk → Verify: file appears in `storage/`
+- [x] **P2-3:** Upload book text on project creation via Gemini Files API → get `fileUri` → store in `state.json` → Verify: `state.json` has `bookFileUri` field
+- [x] **P2-4:** Write `lib/pipeline.ts` — Step 0 (Style): call text model with fileUri → save result → Verify: `stepStates["0"] === "done"` after call
+- [x] **P2-5:** Write Step 1 (Characters): structured JSON output, **cap to max 2**, save → Verify: returns max 2 even if model returns more
+- [x] **P2-6:** Write Step 2 (Portraits): loop per character, save PNG per portrait → Verify: 2 PNG files appear on disk
+- [x] **P2-7:** Write Step 3 (Chapters): structured JSON output, **cap to max 1**, save → Verify: returns exactly 1 chapter
+- [x] **P2-8:** Write Step 4 (Illustrations): 1 image for the chapter → Verify: 1 PNG file appears on disk
+- [x] **P2-9:** `POST /api/projects/:id/steps/:step/run` — 409 guard on `running` state → Verify: second call returns 409 immediately
+- [x] **P2-10:** `POST /api/projects/:id/steps/:step/reset` — reset stuck step → Verify: `stepStates[step]` becomes `"pending"`
+- [x] **P2-11:** `GET /api/projects/:id/images/:filename` — serve static images → Verify: curl returns PNG bytes
 
 ---
 
