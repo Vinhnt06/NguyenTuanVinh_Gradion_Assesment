@@ -10,6 +10,7 @@ interface ApiKeyBadgeProps {
 
 export default function ApiKeyBadge({ variant = 'dark' }: ApiKeyBadgeProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hasAutoPrompted, setHasAutoPrompted] = useState(false);
   const [status, setStatus] = useState<{
     isConfigured: boolean;
     source: string;
@@ -25,10 +26,16 @@ export default function ApiKeyBadge({ variant = 'dark' }: ApiKeyBadgeProps) {
       const res = await fetch('/api/settings/key');
       const data = await res.json();
       setStatus(data);
+
+      // AUTO-POPUP GUARD: If Evaluator has no key configured yet, auto pop-up modal once on initial load
+      if (!data.isConfigured && !hasAutoPrompted) {
+        setHasAutoPrompted(true);
+        setIsModalOpen(true);
+      }
     } catch (err) {
       // Keep default
     }
-  }, []);
+  }, [hasAutoPrompted]);
 
   useEffect(() => {
     checkKeyStatus();
