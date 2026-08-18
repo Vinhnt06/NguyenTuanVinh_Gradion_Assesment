@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
@@ -79,18 +80,19 @@ export default function ProjectsPage() {
       {/* Top Header Navigation */}
       <header className="border-b border-[#BAB7B1] bg-[#F2EEE7] px-6 py-4 sticky top-0 z-30 shadow-2xs backdrop-blur-md bg-[#F2EEE7]/90">
         <div className="max-w-[1200px] mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#FF6B00] text-white font-black text-sm flex items-center justify-center shadow-xs">
-              G
-            </div>
-            <div>
-              <span className="text-[10px] font-mono text-[#919699] uppercase tracking-widest block">
-                GRADION ASSESSMENT
-              </span>
-              <h1 className="text-base font-bold text-[#231F20] leading-none">
-                Book Illustration Studio
-              </h1>
-            </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/gradion-logo.png"
+              alt="Gradion"
+              width={88}
+              height={31}
+              priority
+              className="object-contain"
+            />
+            <span className="text-[#BAB7B1] text-base font-light select-none">·</span>
+            <h1 className="text-sm font-bold text-[#231F20] leading-none tracking-tight">
+              Book Illustration Studio
+            </h1>
           </div>
           <button
             onClick={handleSignOut}

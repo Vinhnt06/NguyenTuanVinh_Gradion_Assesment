@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 
@@ -63,9 +64,17 @@ export default function IdentityPage() {
         {/* Brand Header */}
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-6">
-            <span className="w-3 h-3 rounded-full bg-[#FF6B00] animate-pulse" />
-            <span className="text-xs font-mono tracking-widest text-[#919699] uppercase">
-              GRADION ASSESSMENT · SOFTWARE ENGINEER INTERN
+            <span className="w-3 h-3 rounded-full bg-[#FF6B00] animate-pulse flex-shrink-0" />
+            <Image
+              src="/gradion-logo.png"
+              alt="Gradion"
+              width={100}
+              height={35}
+              priority
+              className="object-contain brightness-0 invert opacity-90"
+            />
+            <span className="text-[10px] font-mono tracking-widest text-[#919699] uppercase">
+              SOFTWARE ENGINEER INTERN
             </span>
           </div>
 
