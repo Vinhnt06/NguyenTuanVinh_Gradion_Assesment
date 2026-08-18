@@ -190,7 +190,7 @@ function ProjectDetailContent() {
             ← Catalog
           </Link>
           <div className="flex items-center gap-4">
-            <ApiKeyBadge />
+            <ApiKeyBadge variant="light" />
             <div className="text-right hidden sm:block">
               <span className="text-[10px] font-mono font-bold text-[#FF6B00] uppercase tracking-widest block">
                 STUDIO WORKSPACE
