@@ -44,9 +44,9 @@ PASS __tests__/backend/pipeline.test.ts
 PASS __tests__/backend/storage.test.ts
 
 Test Suites: 3 passed, 3 total
-Tests:       15 passed, 15 total
+Tests:       16 passed, 16 total
 Snapshots:   0 total
-Time:        0.875 s, estimated 1 s
+Time:        2.335 s
 Ran all test suites.
 ```
 
