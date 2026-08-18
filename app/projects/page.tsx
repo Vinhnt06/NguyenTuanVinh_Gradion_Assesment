@@ -247,7 +247,7 @@ export default function ProjectsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#141418] border border-[#272732] rounded-3xl p-12 text-center max-w-lg mx-auto shadow-2xl relative overflow-hidden"
+            className="bg-[#141418] border border-[#272732] rounded-3xl p-12 text-center max-w-lg mx-auto shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
           >
             <div className="w-16 h-16 rounded-2xl bg-[#1E1E26] text-[#FF6B00] border border-[#333342] font-bold text-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
               <BookOpen weight="bold" className="w-8 h-8" />
@@ -256,12 +256,14 @@ export default function ProjectsPage() {
             <p className="text-xs text-[#8E8E93] mb-6 leading-relaxed max-w-sm mx-auto">
               Start your first multi-step book illustration project by selecting sample book text or pasting your custom story.
             </p>
-            <Link href="/projects/new">
-              <AnimatedButton variant="primary" size="lg" className="gap-2">
-                <Plus weight="bold" className="w-5 h-5" />
-                Create First Project
-              </AnimatedButton>
-            </Link>
+            <div className="flex justify-center w-full">
+              <Link href="/projects/new" className="inline-flex justify-center">
+                <AnimatedButton variant="primary" size="lg" className="gap-2 mx-auto">
+                  <Plus weight="bold" className="w-5 h-5" />
+                  Create First Project
+                </AnimatedButton>
+              </Link>
+            </div>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
