@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 
 export default function IdentityPage() {

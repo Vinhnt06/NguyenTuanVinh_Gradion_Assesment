@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, HTMLMotionProps } from 'motion/react';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import React from 'react';
 
 interface AnimatedButtonProps extends HTMLMotionProps<'button'> {

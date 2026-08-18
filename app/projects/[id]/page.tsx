@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import Stepper from '@/components/pipeline/Stepper';
 import CharacterCard from '@/components/cards/CharacterCard';
 import ChapterCard from '@/components/cards/ChapterCard';
