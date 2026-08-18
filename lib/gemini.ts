@@ -51,8 +51,8 @@ export async function uploadBookTextFile(
 }
 
 /**
- * Generate text or structured JSON using active gemini-flash-latest model
- * Implements 3x exponential retry for 503 Service Unavailable / 429 rate limit spikes
+ * Generate text or structured JSON with automatic Gemini Model Fallback (3.7 Flash -> 3.6 Flash -> 3.5 Flash Lite)
+ * Automatically recovers if one model hits the 20 RPD free tier quota limit or transient 503 error
  */
 export async function generateText(params: {
   prompt: string;
@@ -61,15 +61,12 @@ export async function generateText(params: {
   responseSchema?: any;
 }): Promise<string> {
   const ai = getGeminiAI();
-  const model = ai.getGenerativeModel({
-    model: 'gemini-flash-latest',
-    generationConfig: params.responseSchema
-      ? {
-          responseMimeType: 'application/json',
-          responseSchema: params.responseSchema,
-        }
-      : undefined,
-  });
+
+  const candidateModels = [
+    'gemini-flash-latest',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash-lite',
+  ];
 
   const parts: any[] = [];
 
@@ -86,29 +83,28 @@ export async function generateText(params: {
 
   parts.push({ text: params.prompt });
 
-  // Transient Error Auto-Retry (503 High Demand / 429 Rate Limit)
   let lastError: any;
-  for (let attempt = 0; attempt < 3; attempt++) {
+
+  for (const modelName of candidateModels) {
     try {
+      const model = ai.getGenerativeModel({
+        model: modelName,
+        generationConfig: params.responseSchema
+          ? {
+              responseMimeType: 'application/json',
+              responseSchema: params.responseSchema,
+            }
+          : undefined,
+      });
+
       const result = await model.generateContent(parts);
       const response = await result.response;
       return response.text();
     } catch (err: any) {
       lastError = err;
-      const isTransient =
-        err.message?.includes('503') ||
-        err.message?.includes('429') ||
-        err.message?.includes('high demand') ||
-        err.message?.includes('RESOURCE_EXHAUSTED');
-
-      if (isTransient && attempt < 2) {
-        console.warn(
-          `Gemini API transient 503/429 error (attempt ${attempt + 1}/3). Auto retrying in 1.5s...`
-        );
-        await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
-        continue;
-      }
-      throw err;
+      console.warn(`Gemini model ${modelName} failed or quota exceeded, switching to next candidate:`, err.message);
+      // Wait 1s before trying next candidate model
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
 
