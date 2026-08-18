@@ -1,8 +1,6 @@
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs/promises';
 import path from 'path';
-
-const apiKey = process.env.GEMINI_API_KEY || '';
 
 export function getGeminiAI() {
   if (!process.env.GEMINI_API_KEY) {
@@ -54,6 +52,7 @@ export async function uploadBookTextFile(
 
 /**
  * Generate text or structured JSON using active gemini-flash-latest model
+ * Implements 3x exponential retry for 503 Service Unavailable / 429 rate limit spikes
  */
 export async function generateText(params: {
   prompt: string;
@@ -87,9 +86,33 @@ export async function generateText(params: {
 
   parts.push({ text: params.prompt });
 
-  const result = await model.generateContent(parts);
-  const response = await result.response;
-  return response.text();
+  // Transient Error Auto-Retry (503 High Demand / 429 Rate Limit)
+  let lastError: any;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const result = await model.generateContent(parts);
+      const response = await result.response;
+      return response.text();
+    } catch (err: any) {
+      lastError = err;
+      const isTransient =
+        err.message?.includes('503') ||
+        err.message?.includes('429') ||
+        err.message?.includes('high demand') ||
+        err.message?.includes('RESOURCE_EXHAUSTED');
+
+      if (isTransient && attempt < 2) {
+        console.warn(
+          `Gemini API transient 503/429 error (attempt ${attempt + 1}/3). Auto retrying in 1.5s...`
+        );
+        await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError;
 }
 
 /**
@@ -112,7 +135,7 @@ export async function generateAndSaveImage(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         instances: [{ prompt }],
-        parameters: { sampleCount: 1, aspectRatio: '1:1' },
+        parameters: { sampleCount: 1, aspectRatio: '3:4' },
       }),
     });
 
@@ -129,37 +152,42 @@ export async function generateAndSaveImage(
     // Imagen call failed or model unavailable on key, proceed to fallback
   }
 
-  // Fallback Vector SVG Artwork Card (Ensures pipeline never fails on free-tier keys)
+  // Fallback Vector SVG Artwork Card (3:4 aspect ratio, 600x800 viewBox)
   const escapedPrompt = prompt.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const shortTitle = prompt.substring(0, 45) + (prompt.length > 45 ? '...' : '');
+  const shortTitle = prompt.substring(0, 40) + (prompt.length > 40 ? '...' : '');
 
-  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#231F20" />
-      <stop offset="50%" stop-color="#3A160A" />
+      <stop offset="0%" stop-color="#1A1819" />
+      <stop offset="45%" stop-color="#2D1910" />
       <stop offset="100%" stop-color="#FF6B00" />
     </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FFA861" stop-opacity="0.6" />
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FFA861" stop-opacity="0.7" />
       <stop offset="100%" stop-color="#FF6B00" stop-opacity="0" />
     </radialGradient>
   </defs>
-  <rect width="600" height="600" rx="24" fill="url(#bgGrad)" />
-  <circle cx="300" cy="260" r="180" fill="url(#glow)" />
+
+  <rect width="600" height="800" rx="28" fill="url(#bgGrad)" />
+  <circle cx="300" cy="320" r="220" fill="url(#glow)" />
   
-  <!-- Geometric Artwork Frame -->
-  <rect x="60" y="60" width="480" height="480" rx="16" fill="none" stroke="#FFA861" stroke-width="2" stroke-dasharray="8 6" opacity="0.4" />
+  <!-- Outer Frame Line -->
+  <rect x="40" y="40" width="520" height="720" rx="20" fill="none" stroke="#FFA861" stroke-width="2" stroke-dasharray="8 6" opacity="0.35" />
   
-  <!-- Central Art Glyph -->
-  <circle cx="300" cy="240" r="64" fill="#FF6B00" opacity="0.9" />
-  <path d="M270 240 L300 190 L330 240 L300 290 Z" fill="#FFFFFF" opacity="0.95" />
-  
-  <!-- Caption & Label -->
-  <rect x="40" y="440" width="520" height="110" rx="12" fill="#1D1C1D" opacity="0.85" />
-  <text x="60" y="472" font-family="sans-serif" font-size="14" font-weight="bold" fill="#FF6B00" letter-spacing="2">BOOK ILLUSTRATION STUDIO</text>
-  <text x="60" y="500" font-family="sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">${shortTitle}</text>
-  <text x="60" y="525" font-family="sans-serif" font-size="11" fill="#919699">${escapedPrompt.substring(0, 75)}...</text>
+  <!-- Central Art Diamond Emblem -->
+  <circle cx="300" cy="300" r="75" fill="#FF6B00" opacity="0.9" />
+  <path d="M265 300 L300 240 L335 300 L300 360 Z" fill="#FFFFFF" opacity="0.95" />
+
+  <!-- Studio Header Tag -->
+  <rect x="70" y="60" width="220" height="30" rx="6" fill="#FF6B00" opacity="0.2" />
+  <text x="82" y="80" font-family="sans-serif" font-size="11" font-weight="bold" fill="#FFA861" letter-spacing="1.5">STUDIO VISUAL ARTWORK</text>
+
+  <!-- Bottom Caption Container -->
+  <rect x="50" y="640" width="500" height="100" rx="16" fill="#141416" opacity="0.92" stroke="#33333E" stroke-width="1" />
+  <text x="70" y="670" font-family="sans-serif" font-size="12" font-weight="bold" fill="#FF6B00" letter-spacing="1.5">BOOK ILLUSTRATION STUDIO</text>
+  <text x="70" y="698" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFFFFF">${shortTitle}</text>
+  <text x="70" y="722" font-family="sans-serif" font-size="11" fill="#919699">${escapedPrompt.substring(0, 65)}...</text>
 </svg>`;
 
   // Write SVG file or replace .png path with .svg
