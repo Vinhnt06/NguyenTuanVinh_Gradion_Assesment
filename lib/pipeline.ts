@@ -163,11 +163,12 @@ export async function executePipelineStep(
           const relativePath = `/api/projects/${projectId}/images/${imageFileName}`;
 
           try {
-            await generateAndSaveImage(fullPrompt, imagePath);
+            const savedPath = await generateAndSaveImage(fullPrompt, imagePath);
+            const savedFileName = path.basename(savedPath);
+            const relativePath = `/api/projects/${projectId}/images/${savedFileName}`;
             portraits.push({ ...char, imagePath: relativePath });
           } catch (err: any) {
             console.warn(`Portrait generation failed for ${char.name}, creating fallback:`, err.message);
-            // Fallback placeholder path if Imagen quota exceeded
             portraits.push({ ...char, imagePath: relativePath });
           }
         }
@@ -238,13 +239,15 @@ export async function executePipelineStep(
           const fullPrompt = `${chap.prompt}. Art style: ${style}. Detailed book scene illustration.`;
           const imageFileName = `illustration-${i}.png`;
           const imagePath = path.join(projectDir, imageFileName);
-          const relativePath = `/api/projects/${projectId}/images/${imageFileName}`;
 
           try {
-            await generateAndSaveImage(fullPrompt, imagePath);
+            const savedPath = await generateAndSaveImage(fullPrompt, imagePath);
+            const savedFileName = path.basename(savedPath);
+            const relativePath = `/api/projects/${projectId}/images/${savedFileName}`;
             illustrations.push({ ...chap, illustrationPath: relativePath });
           } catch (err: any) {
             console.warn(`Illustration generation failed, creating path:`, err.message);
+            const relativePath = `/api/projects/${projectId}/images/${imageFileName}`;
             illustrations.push({ ...chap, illustrationPath: relativePath });
           }
         }
