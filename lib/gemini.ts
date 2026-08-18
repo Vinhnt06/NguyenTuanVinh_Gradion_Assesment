@@ -189,37 +189,42 @@ export async function generateAndSaveImage(
     }
   }
 
-  // 2. Try FLUX.1, Turbo & SDXL AI Model Engines sequentially with 20s timeout per model
+  // 2. Try FLUX.1, Turbo & SDXL AI Model Engines with 2-pass auto-retry
   const fluxModels = ['flux', 'turbo', 'sdxl'];
   const width = aspectRatio === '16:9' ? 960 : 600;
   const height = aspectRatio === '16:9' ? 540 : 800;
 
-  for (const fluxModel of fluxModels) {
-    try {
-      const seed = Math.floor(Math.random() * 1000000);
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
-        prompt
-      )}?width=${width}&height=${height}&model=${fluxModel}&seed=${seed}&nologo=true`;
+  for (let pass = 1; pass <= 2; pass++) {
+    for (const fluxModel of fluxModels) {
+      try {
+        const seed = Math.floor(Math.random() * 1000000);
+        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+          prompt
+        )}?width=${width}&height=${height}&model=${fluxModel}&seed=${seed}&nologo=true`;
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout per engine
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout per engine
 
-      const fluxRes = await fetch(pollinationsUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
+        const fluxRes = await fetch(pollinationsUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
 
-      if (fluxRes.ok) {
-        const arrayBuffer = await fluxRes.arrayBuffer();
-        if (arrayBuffer.byteLength > 1000) {
-          const jpgPath = outputPath.endsWith('.png')
-            ? outputPath.replace(/\.png$/, '.jpg')
-            : outputPath;
-          await fs.writeFile(jpgPath, Buffer.from(arrayBuffer));
-          return jpgPath;
+        if (fluxRes.ok) {
+          const arrayBuffer = await fluxRes.arrayBuffer();
+          if (arrayBuffer.byteLength > 1000) {
+            const jpgPath = outputPath.endsWith('.png')
+              ? outputPath.replace(/\.png$/, '.jpg')
+              : outputPath;
+            await fs.writeFile(jpgPath, Buffer.from(arrayBuffer));
+            return jpgPath;
+          }
         }
+      } catch (err: any) {
+        console.warn(`AI Image engine ${fluxModel} (pass ${pass}) failed/timed out:`, err.message);
+        await new Promise((r) => setTimeout(r, 1500));
       }
-    } catch (err: any) {
-      console.warn(`AI Image engine ${fluxModel} failed/timed out:`, err.message);
-      await new Promise((r) => setTimeout(r, 1000));
+    }
+    if (pass < 2) {
+      await new Promise((r) => setTimeout(r, 2500));
     }
   }
 

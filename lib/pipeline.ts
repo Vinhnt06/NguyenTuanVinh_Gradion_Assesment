@@ -157,7 +157,7 @@ export async function executePipelineStep(
 
         for (let i = 0; i < chars.length; i++) {
           if (i > 0) {
-            await new Promise((r) => setTimeout(r, 2000));
+            await new Promise((r) => setTimeout(r, 3500));
           }
           const char = chars[i];
           const fullPrompt = `${char.prompt}. Art style: ${style}. Character portrait, high quality.`;
