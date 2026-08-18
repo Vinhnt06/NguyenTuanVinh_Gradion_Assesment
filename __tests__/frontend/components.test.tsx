@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Stepper from '../../components/pipeline/Stepper';
-import StepAction from '../../components/pipeline/StepAction';
-import CharacterCard from '../../components/cards/CharacterCard';
+import Stepper from '@/components/pipeline/Stepper';
+import StepAction from '@/components/pipeline/StepAction';
+import CharacterCard from '@/components/cards/CharacterCard';
 
 describe('Frontend UI Components', () => {
   describe('Stepper Component', () => {
