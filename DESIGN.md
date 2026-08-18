@@ -1,6 +1,6 @@
 ---
 title: Gradion Book Illustration Studio Design Tokens
-version: 1.0.0
+version: 1.1.0
 colors:
   primary: "#FF6B00"
   primaryHover: "#E85F00"
@@ -16,18 +16,25 @@ colors:
   white: "#FFFFFF"
   black: "#1D1C1D"
 typography:
-  fontFamily: "Noto Sans, system-ui, sans-serif"
-  sizeHeading2: "32px"
-  sizeHeading3: "24px"
+  fontFamily: "var(--font-geist-sans), system-ui, sans-serif"
+  fontMono: "var(--font-geist-mono), monospace"
+  sizeHeading1: "36px"
+  sizeHeading2: "28px"
+  sizeHeading3: "22px"
   sizeHeading4: "18px"
-  sizeBody: "16px"
+  sizeBody: "15px"
   sizeMeta: "12px"
 rounded:
   card: "16px"
-  button: "8px"
+  button: "10px"
   pill: "999px"
 shadows:
-  card: "0 2px 6px rgba(35,31,32,0.06), 0 1px 2px rgba(35,31,32,0.04)"
+  card: "0 2px 8px rgba(35,31,32,0.06), 0 1px 2px rgba(35,31,32,0.04)"
+  cardHover: "0 12px 24px -4px rgba(35,31,32,0.1), 0 4px 8px -2px rgba(35,31,32,0.04)"
+motion:
+  variance: 8
+  intensity: 7
+  density: 4
 ---
 
 # Gradion Design Tokens & UI Guidelines
