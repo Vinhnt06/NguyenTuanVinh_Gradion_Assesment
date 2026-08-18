@@ -17,5 +17,8 @@ if [ ! -d node_modules ]; then
   npm install
 fi
 
+echo "🧹 Clearing stale build cache..."
+rm -rf .next
+
 echo "✨ Starting development server on http://localhost:3000..."
 npm run dev

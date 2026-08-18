@@ -4,6 +4,7 @@ import {
   readProjectState,
   writeProjectState,
   listUserProjects,
+  deleteProjectDir,
 } from '../../lib/storage';
 import fs from 'fs/promises';
 import path from 'path';
@@ -80,6 +81,16 @@ describe('Storage & Auth Modules', () => {
 
       const projects = await listUserProjects(userId);
       expect(projects.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('deletes project directory correctly', async () => {
+      const pDelete = createInitialState({ id: 'p_del', userId, title: 'Delete Test', bookText: 'Text' });
+      await writeProjectState(userId, 'p_del', pDelete);
+      expect(await readProjectState(userId, 'p_del')).not.toBeNull();
+
+      const deleted = await deleteProjectDir(userId, 'p_del');
+      expect(deleted).toBe(true);
+      expect(await readProjectState(userId, 'p_del')).toBeNull();
     });
   });
 });

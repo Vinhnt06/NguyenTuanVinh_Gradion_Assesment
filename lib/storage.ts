@@ -101,6 +101,19 @@ export async function writeProjectState(userId: string, projectId: string, state
   });
 }
 
+export async function deleteProjectDir(userId: string, projectId: string): Promise<boolean> {
+  const dir = getProjectDir(userId, projectId);
+  try {
+    await fs.rm(dir, { recursive: true, force: true });
+    return true;
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+}
+
 export async function listUserProjects(userId: string): Promise<ProjectState[]> {
   const userProjectsDir = getUserDir(userId);
   try {

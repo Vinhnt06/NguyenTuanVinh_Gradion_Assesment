@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import { ToastProvider } from '@/components/ui/Toast';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -27,11 +28,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}>
-      <body className="antialiased font-sans bg-[#F8F8F8] text-[#231F20] min-h-screen selection:bg-[#FF6B00] selection:text-white">
-        {children}
+      <body className="antialiased font-sans bg-[#0D0D0F] text-[#F2EEE7] min-h-screen selection:bg-[#FF6B00] selection:text-white">
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );
 }
-
-
