@@ -161,18 +161,20 @@ export async function generateAndSaveImage(
     }
   }
 
-  // 2. Try FLUX.1 High Definition AI Model API (Pollinations Engine) with 25s timeout & 2 attempts
-  for (let fluxAttempt = 0; fluxAttempt < 2; fluxAttempt++) {
+  // 2. Try FLUX.1 High Definition AI Model API (Pollinations Engine) with multi-model fallback & 30s timeout
+  const fluxModels = ['flux', 'turbo'];
+  const width = aspectRatio === '16:9' ? 960 : 600;
+  const height = aspectRatio === '16:9' ? 540 : 800;
+
+  for (const fluxModel of fluxModels) {
     try {
-      const width = aspectRatio === '16:9' ? 960 : 600;
-      const height = aspectRatio === '16:9' ? 540 : 800;
       const seed = Math.floor(Math.random() * 1000000);
       const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
         prompt
-      )}?width=${width}&height=${height}&model=flux&seed=${seed}&nologo=true`;
+      )}?width=${width}&height=${height}&model=${fluxModel}&seed=${seed}&nologo=true`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout per attempt
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
       const fluxRes = await fetch(pollinationsUrl, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -188,10 +190,8 @@ export async function generateAndSaveImage(
         }
       }
     } catch (err: any) {
-      console.warn(`FLUX AI attempt ${fluxAttempt + 1} timed out or failed:`, err.message);
-      if (fluxAttempt === 0) {
-        await new Promise((r) => setTimeout(r, 2000));
-      }
+      console.warn(`FLUX AI model ${fluxModel} timed out or failed:`, err.message);
+      await new Promise((r) => setTimeout(r, 1500));
     }
   }
 
