@@ -146,26 +146,20 @@ export async function generateAndSaveImage(
   prompt: string,
   outputPath: string,
   aspectRatio: '3:4' | '16:9' = '3:4',
-  overrideKey?: string
+  itemIndex: number = 0
 ): Promise<string> {
-  let key: string;
-  try {
-    key = resolveApiKey(overrideKey);
-  } catch (err) {
-    key = 'dummy_key';
-  }
+  const dir = path.dirname(outputPath);
+  await fs.mkdir(dir, { recursive: true });
 
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  // 1. Check if user configured custom Gemini API Key
+  const customKey = await resolveApiKey();
 
-  // 1. Try Google Imagen REST API endpoints first
-  const imagenEndpoints = [
-    'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict',
-    'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict',
-  ];
-
-  for (const urlEndpoint of imagenEndpoints) {
+  // Try Google Imagen REST if key is available
+  if (customKey) {
     try {
-      const url = `${urlEndpoint}?key=${key}`;
+      const urlEndpoint =
+        'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict';
+      const url = `${urlEndpoint}?key=${customKey}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -189,8 +183,14 @@ export async function generateAndSaveImage(
     }
   }
 
-  // 2. Try FLUX.1, Turbo & SDXL AI Model Engines with 2-pass auto-retry
-  const fluxModels = ['flux', 'turbo', 'sdxl'];
+  // 2. Rotate model queue based on itemIndex so consecutive batch items use separate model queues
+  const allModels = ['flux', 'turbo', 'sdxl'];
+  const fluxModels = [
+    allModels[itemIndex % 3],
+    allModels[(itemIndex + 1) % 3],
+    allModels[(itemIndex + 2) % 3],
+  ];
+
   const width = aspectRatio === '16:9' ? 960 : 600;
   const height = aspectRatio === '16:9' ? 540 : 800;
 

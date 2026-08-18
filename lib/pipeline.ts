@@ -157,7 +157,7 @@ export async function executePipelineStep(
 
         for (let i = 0; i < chars.length; i++) {
           if (i > 0) {
-            await new Promise((r) => setTimeout(r, 3500));
+            await new Promise((r) => setTimeout(r, 4500));
           }
           const char = chars[i];
           const fullPrompt = `${char.prompt}. Art style: ${style}. Character portrait, high quality.`;
@@ -166,7 +166,7 @@ export async function executePipelineStep(
           const relativePath = `/api/projects/${projectId}/images/${imageFileName}`;
 
           try {
-            const savedPath = await generateAndSaveImage(fullPrompt, imagePath);
+            const savedPath = await generateAndSaveImage(fullPrompt, imagePath, '3:4', i);
             const savedFileName = path.basename(savedPath);
             const relativePath = `/api/projects/${projectId}/images/${savedFileName}`;
             portraits.push({ ...char, imagePath: relativePath });
