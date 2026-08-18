@@ -19,6 +19,7 @@ import {
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
 import ApiKeyBadge from '@/components/ui/ApiKeyBadge';
+import SignOutModal from '@/components/ui/SignOutModal';
 import { useToast } from '@/components/ui/Toast';
 
 interface CharacterItem {
@@ -57,6 +58,20 @@ export default function ProjectsCatalogPage() {
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOutConfirm = async () => {
+    setIsSigningOut(true);
+    try {
+      await fetch('/api/auth', { method: 'DELETE' });
+      router.push('/');
+    } catch (err: any) {
+      showToast('Sign Out Error', 'Failed to sign out', 'error');
+      setIsSigningOut(false);
+    }
+  };
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -189,7 +204,7 @@ export default function ProjectsCatalogPage() {
               </AnimatedButton>
             </Link>
             <button
-              onClick={handleSignOut}
+              onClick={() => setShowSignOutModal(true)}
               className="text-xs font-semibold text-[#595959] hover:text-[#FF6B00] transition-colors"
             >
               Sign Out →
@@ -451,6 +466,14 @@ export default function ProjectsCatalogPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Sign Out Confirmation Modal */}
+      <SignOutModal
+        isOpen={showSignOutModal}
+        onClose={() => setShowSignOutModal(false)}
+        onConfirm={handleSignOutConfirm}
+        loading={isSigningOut}
+      />
     </div>
   );
 }

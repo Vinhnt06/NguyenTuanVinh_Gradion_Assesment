@@ -12,6 +12,7 @@ import StepAction from '@/components/pipeline/StepAction';
 import { ToastProvider, useToast } from '@/components/ui/Toast';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
 import ApiKeyBadge from '@/components/ui/ApiKeyBadge';
+import SignOutModal from '@/components/ui/SignOutModal';
 
 interface ProjectState {
   id: string;
@@ -48,6 +49,20 @@ function ProjectDetailContent() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [isSavingTitle, setIsSavingTitle] = useState(false);
+
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOutConfirm = async () => {
+    setIsSigningOut(true);
+    try {
+      await fetch('/api/auth', { method: 'DELETE' });
+      router.push('/');
+    } catch (err: any) {
+      showToast('Sign Out Error', 'Failed to sign out', 'error');
+      setIsSigningOut(false);
+    }
+  };
 
   const handleUpdateTitle = async () => {
     if (!newTitle.trim() || newTitle.trim() === project?.title) {
@@ -233,6 +248,12 @@ function ProjectDetailContent() {
                 Created {new Date(project.createdAt).toLocaleDateString()}
               </span>
             </div>
+            <button
+              onClick={() => setShowSignOutModal(true)}
+              className="text-xs font-semibold text-[#595959] hover:text-[#FF6B00] transition-colors pl-2 border-l border-[#BAB7B1]"
+            >
+              Sign Out →
+            </button>
           </div>
         </div>
       </header>
@@ -448,6 +469,14 @@ function ProjectDetailContent() {
           </div>
         </div>
       </main>
+
+      {/* Sign Out Confirmation Modal */}
+      <SignOutModal
+        isOpen={showSignOutModal}
+        onClose={() => setShowSignOutModal(false)}
+        onConfirm={handleSignOutConfirm}
+        loading={isSigningOut}
+      />
     </div>
   );
 }
