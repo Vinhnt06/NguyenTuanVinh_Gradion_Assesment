@@ -198,24 +198,35 @@ export async function generateAndSaveImage(
     for (const fluxModel of fluxModels) {
       try {
         const seed = Math.floor(Math.random() * 1000000);
-        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
-          prompt
-        )}?width=${width}&height=${height}&model=${fluxModel}&seed=${seed}&nologo=true`;
+        const endpoints = [
+          `https://image.pollinations.ai/prompt/${encodeURIComponent(
+            prompt
+          )}?width=${width}&height=${height}&model=${fluxModel}&seed=${seed}&nologo=true`,
+          `https://pollinations.ai/p/${encodeURIComponent(
+            prompt
+          )}?width=${width}&height=${height}&seed=${seed}`,
+        ];
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout per engine
+        for (const url of endpoints) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout per engine
 
-        const fluxRes = await fetch(pollinationsUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
+            const fluxRes = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
 
-        if (fluxRes.ok) {
-          const arrayBuffer = await fluxRes.arrayBuffer();
-          if (arrayBuffer.byteLength > 1000) {
-            const jpgPath = outputPath.endsWith('.png')
-              ? outputPath.replace(/\.png$/, '.jpg')
-              : outputPath;
-            await fs.writeFile(jpgPath, Buffer.from(arrayBuffer));
-            return jpgPath;
+            if (fluxRes.ok) {
+              const arrayBuffer = await fluxRes.arrayBuffer();
+              if (arrayBuffer.byteLength > 1000) {
+                const jpgPath = outputPath.endsWith('.png')
+                  ? outputPath.replace(/\.png$/, '.jpg')
+                  : outputPath;
+                await fs.writeFile(jpgPath, Buffer.from(arrayBuffer));
+                return jpgPath;
+              }
+            }
+          } catch (endpointErr) {
+            // Try next endpoint
           }
         }
       } catch (err: any) {

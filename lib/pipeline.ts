@@ -157,7 +157,7 @@ export async function executePipelineStep(
 
         for (let i = 0; i < chars.length; i++) {
           if (i > 0) {
-            await new Promise((r) => setTimeout(r, 4500));
+            await new Promise((r) => setTimeout(r, 3500));
           }
           const char = chars[i];
           const fullPrompt = `${char.prompt}. Art style: ${style}. Character portrait, high quality.`;
@@ -166,7 +166,12 @@ export async function executePipelineStep(
           const relativePath = `/api/projects/${projectId}/images/${imageFileName}`;
 
           try {
-            const savedPath = await generateAndSaveImage(fullPrompt, imagePath, '3:4', i);
+            let savedPath = await generateAndSaveImage(fullPrompt, imagePath, '3:4', i);
+            // If image generation returned an SVG fallback, auto-retry once after 3s recovery pause
+            if (savedPath.endsWith('.svg')) {
+              await new Promise((r) => setTimeout(r, 3000));
+              savedPath = await generateAndSaveImage(fullPrompt, imagePath, '3:4', i + 1);
+            }
             const savedFileName = path.basename(savedPath);
             const relativePath = `/api/projects/${projectId}/images/${savedFileName}`;
             portraits.push({ ...char, imagePath: relativePath });
@@ -247,7 +252,11 @@ export async function executePipelineStep(
           const imagePath = path.join(projectDir, imageFileName);
 
           try {
-            const savedPath = await generateAndSaveImage(fullPrompt, imagePath, '16:9');
+            let savedPath = await generateAndSaveImage(fullPrompt, imagePath, '16:9', i);
+            if (savedPath.endsWith('.svg')) {
+              await new Promise((r) => setTimeout(r, 3000));
+              savedPath = await generateAndSaveImage(fullPrompt, imagePath, '16:9', i + 1);
+            }
             const savedFileName = path.basename(savedPath);
             const relativePath = `/api/projects/${projectId}/images/${savedFileName}`;
             illustrations.push({ ...chap, illustrationPath: relativePath });
