@@ -132,6 +132,23 @@ function ProjectDetailContent() {
     }
   };
 
+  const handleRegenerateSingleImage = async (type: 'character' | 'illustration', index: number) => {
+    try {
+      showToast('Generating AI Picture...', 'Communicating with FLUX AI Engine', 'info');
+      const res = await fetch(`/api/projects/${projectId}/images/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, index }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Regeneration failed');
+      setProject(data.project);
+      showToast('New AI Picture Generated ✓', 'Saved HD picture to disk', 'success');
+    } catch (err: any) {
+      showToast('Regeneration Error', err.message, 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] flex flex-col items-center justify-center p-6 space-y-4">
@@ -272,6 +289,7 @@ function ProjectDetailContent() {
                       key={idx}
                       character={char}
                       isGenerating={project.stepStates[2] === 'running'}
+                      onRegenerateImage={() => handleRegenerateSingleImage('character', idx)}
                     />
                   ))}
                 </div>
@@ -293,6 +311,7 @@ function ProjectDetailContent() {
                       key={idx}
                       chapter={chap}
                       isGenerating={project.stepStates[4] === 'running'}
+                      onRegenerateImage={() => handleRegenerateSingleImage('illustration', idx)}
                     />
                   ))}
                 </div>

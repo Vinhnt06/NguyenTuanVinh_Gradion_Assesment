@@ -116,7 +116,7 @@ export async function generateText(params: {
 }
 
 /**
- * Generate an image using Google Imagen / FLUX.1 AI Model API or resilient vector artwork SVG fallback
+ * Generate an image using Google Imagen / FLUX.1 / Turbo / SDXL AI Model APIs or resilient vector artwork SVG fallback
  * Supports both '3:4' (portrait character) and '16:9' (landscape chapter scene) aspect ratios
  */
 export async function generateAndSaveImage(
@@ -157,12 +157,12 @@ export async function generateAndSaveImage(
         }
       }
     } catch (err) {
-      // Proceed to FLUX.1 AI Engine
+      // Proceed to FLUX / Turbo / SDXL AI Engines
     }
   }
 
-  // 2. Try FLUX.1 High Definition AI Model API (Pollinations Engine) with multi-model fallback & 30s timeout
-  const fluxModels = ['flux', 'turbo'];
+  // 2. Try FLUX.1, Turbo & SDXL AI Model Engines sequentially with 20s timeout per model
+  const fluxModels = ['flux', 'turbo', 'sdxl'];
   const width = aspectRatio === '16:9' ? 960 : 600;
   const height = aspectRatio === '16:9' ? 540 : 800;
 
@@ -174,7 +174,7 @@ export async function generateAndSaveImage(
       )}?width=${width}&height=${height}&model=${fluxModel}&seed=${seed}&nologo=true`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout per engine
 
       const fluxRes = await fetch(pollinationsUrl, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -190,8 +190,8 @@ export async function generateAndSaveImage(
         }
       }
     } catch (err: any) {
-      console.warn(`FLUX AI model ${fluxModel} timed out or failed:`, err.message);
-      await new Promise((r) => setTimeout(r, 1500));
+      console.warn(`AI Image engine ${fluxModel} failed/timed out:`, err.message);
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
 
