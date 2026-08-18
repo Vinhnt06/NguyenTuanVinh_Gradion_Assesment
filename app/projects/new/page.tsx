@@ -4,27 +4,42 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Sparkle, BookOpen } from '@phosphor-icons/react';
+import { Sparkle, BookOpen, CheckCircle, ArrowRight } from '@phosphor-icons/react';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 
 const SAMPLE_BOOKS = [
   {
+    id: 'willows',
     title: 'The Wind in the Willows — Vintage Classic',
-    shortName: '🐸 Wind in the Willows',
+    shortTitle: 'The Wind in the Willows',
+    author: 'Kenneth Grahame (1908)',
+    genre: 'Pastoral Classic',
+    emoji: '🐸',
+    description: 'Follow Mole, Water Rat, and Mr. Toad along the English riverbank.',
     excerpt: `The Mole had been working very hard all the morning, spring-cleaning his little home. First with brooms, then with dusters; then on ladders and steps and chairs, with a brush and a pail of whitewash; till he had dust in his throat and eyes, and splashes of whitewash all over his black fur, and an ached back and weary arms. Spring was moving in the air above and in the earth below and around him, penetrating even his dark and lowly little house with its spirit of divine discontent and longing. It was small wonder, then, that he suddenly flung down his brush on the floor, said 'Bother!' and 'O blow!' and also 'Hang spring-cleaning!' and bolted out of the house without even waiting to put on his coat.
 
 He thought his happiness was complete when, as he meandered aimlessly along, suddenly he stood by the edge of a full-fed river. Never in his life had he seen a river before—this sleek, sinuous, full-bodied animal, chasing and chuckling, gripping things with a gurgle and leaving them with a laugh, to fling itself on fresh playmates that shook themselves free. As he sat on the grass and looked across the river, a dark hole in the bank opposite caught his eye. A brown little face with whiskers emerged: Water Rat!`,
   },
   {
+    id: 'nautilus',
     title: 'Twenty Thousand Leagues Under the Sea — Victorian Steampunk',
-    shortName: '🌊 20,000 Leagues',
+    shortTitle: '20,000 Leagues Under Sea',
+    author: 'Jules Verne (1870)',
+    genre: 'Victorian Sci-Fi',
+    emoji: '🌊',
+    description: 'Join Professor Aronnax aboard Captain Nemo’s submarine Nautilus.',
     excerpt: `The year 1866 was signalized by a remarkable incident, a mysterious and inexplicable phenomenon, which doubtless no one has yet forgotten. Seafaring men were particularly excited. Merchants, common sailors, captains of vessels, and naval officers of all countries were deeply concerned with the matter. For some time past vessels had been met by an "enormous thing," a long object, spindle-shaped, occasionally phosphorescent, and infinitely larger and more rapid in its movements than a whale.
 
 I had just returned from a scientific research in the bad lands of Nebraska. On my arrival at New York, I was honored by an invitation to join an expedition organized by the United States Government to pursue this monster. Captain Farragut had fitted out the Abraham Lincoln, a high-speed frigate. Ned Land, a Canadian harpooner of forty years of age, was on board. Before us, two cable-lengths away, a long black body emerged three feet above the water, surrounded by a vivid electric luminescence that blinded our eyes. We had finally met Captain Nemo's Nautilus.`,
   },
   {
+    id: 'alice',
     title: "Alice's Adventures in Wonderland — Whimsical Storybook",
-    shortName: '🐇 Alice in Wonderland',
+    shortTitle: 'Alice in Wonderland',
+    author: 'Lewis Carroll (1865)',
+    genre: 'Whimsical Fantasy',
+    emoji: '🐇',
+    description: 'Tumble down the rabbit-hole into a surreal world of pink-eyed rabbits.',
     excerpt: `Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, 'and what is the use of a book,' thought Alice 'without pictures or conversations?'
 
 So she was considering in her own mind whether the pleasure of making a daisy-chain would be worth the trouble of getting up, when suddenly a White Rabbit with pink eyes ran close by her. The Rabbit actually TOOK A WATCH OUT OF ITS VEST-POCKET, and looked at it, and then hurried on. Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waist-coat pocket, or a watch to take out of it. Burning with curiosity, she ran across the field after it and saw it pop down a large rabbit-hole under the hedge.`,
@@ -38,7 +53,7 @@ export default function NewProjectPage() {
   const [title, setTitle] = useState('');
   const [bookText, setBookText] = useState('');
   const [fileName, setFileName] = useState('');
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,7 +65,7 @@ export default function NewProjectPage() {
     setTitle(sample.title);
     setBookText(sample.excerpt);
     setFileName('');
-    setSelectedPreset(sample.shortName);
+    setSelectedPresetId(sample.id);
     setError('');
   };
 
@@ -64,7 +79,7 @@ export default function NewProjectPage() {
 
     setError('');
     setFileName(file.name);
-    setSelectedPreset(null);
+    setSelectedPresetId(null);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -148,7 +163,7 @@ export default function NewProjectPage() {
       </header>
 
       {/* Main Wizard Form */}
-      <main className="max-w-[720px] mx-auto p-6 mt-4">
+      <main className="max-w-[800px] mx-auto p-6 mt-4">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -163,35 +178,91 @@ export default function NewProjectPage() {
               Start New Illustration Studio
             </h2>
             <p className="text-xs text-[#595959] leading-relaxed">
-              Select a public-domain sample book preset or upload your custom book text. This text is reused across all 5 steps via Gemini Files API.
+              Select a sample literature preset or upload your custom book text. This text is reused across all 5 steps via Gemini Files API.
             </p>
           </div>
 
-          {/* BONUS SECTION §08: 1-Click Sample Public Domain Books Picker */}
-          <div className="mb-6 p-4 bg-white/80 border border-[#CBD5E1] rounded-xl">
-            <div className="flex items-center gap-1.5 mb-2.5">
-              <Sparkle weight="fill" className="w-4 h-4 text-[#FF6B00]" />
-              <span className="text-xs font-mono font-bold text-[#231F20] uppercase tracking-wider">
-                1-Click Sample Book Presets (Bonus §08)
+          {/* HIGH-END LITERATURE PRESETS GRID */}
+          <div className="mb-8 p-5 bg-[#F8F6F0] border border-[#D5D0C5] rounded-2xl shadow-xs">
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded-md bg-[#FF6B00]/10 text-[#FF6B00]">
+                  <Sparkle weight="fill" className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-mono font-bold text-[#231F20] uppercase tracking-wider">
+                  Select Literature Preset
+                </span>
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#EAE5DC] text-[#595959] border border-[#C5BFB4] rounded-full uppercase tracking-wider">
+                Public Domain Presets
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
               {SAMPLE_BOOKS.map((book) => {
-                const isSelected = selectedPreset === book.shortName;
+                const isSelected = selectedPresetId === book.id;
                 return (
-                  <button
-                    key={book.shortName}
+                  <motion.button
+                    key={book.id}
                     type="button"
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => handleSelectPreset(book)}
-                    className={`px-3 py-2 rounded-lg text-xs font-bold text-left transition-all border flex items-center justify-between cursor-pointer ${
+                    className={`p-4 rounded-xl text-left transition-all duration-200 border cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                       isSelected
-                        ? 'bg-[#FF6B00] border-[#FF6B00] text-white shadow-xs'
-                        : 'bg-[#F8F8F8] border-[#BAB7B1] text-[#231F20] hover:border-[#FF6B00] hover:bg-white'
+                        ? 'bg-[#231F20] border-[#231F20] text-white shadow-md ring-2 ring-[#FF6B00]/40'
+                        : 'bg-white border-[#D5D0C5] text-[#231F20] hover:border-[#FF6B00] hover:shadow-xs'
                     }`}
                   >
-                    <span className="truncate">{book.shortName}</span>
-                    {isSelected && <BookOpen weight="fill" className="w-4 h-4 shrink-0" />}
-                  </button>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xl">{book.emoji}</span>
+                        <span
+                          className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full tracking-wider ${
+                            isSelected
+                              ? 'bg-[#FF6B00] text-white'
+                              : 'bg-[#F2EEE7] text-[#595959] border border-[#BAB7B1]'
+                          }`}
+                        >
+                          {book.genre}
+                        </span>
+                      </div>
+                      <h4
+                        className={`text-xs font-extrabold leading-tight mb-1 ${
+                          isSelected ? 'text-white' : 'text-[#231F20]'
+                        }`}
+                      >
+                        {book.shortTitle}
+                      </h4>
+                      <p
+                        className={`text-[10px] font-mono mb-2 ${
+                          isSelected ? 'text-[#BAB7B1]' : 'text-[#595959]'
+                        }`}
+                      >
+                        {book.author}
+                      </p>
+                      <p
+                        className={`text-[11px] leading-relaxed line-clamp-2 ${
+                          isSelected ? 'text-[#D5D0C5]' : 'text-[#595959]'
+                        }`}
+                      >
+                        {book.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-current/10 flex items-center justify-between text-[10px] font-bold">
+                      {isSelected ? (
+                        <span className="text-[#FF6B00] flex items-center gap-1 font-mono">
+                          <CheckCircle weight="fill" className="w-3.5 h-3.5 text-[#FF6B00]" />
+                          Preset Loaded
+                        </span>
+                      ) : (
+                        <span className="text-[#595959] group-hover:text-[#FF6B00] flex items-center gap-1 font-mono">
+                          Load Text <ArrowRight className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+                  </motion.button>
                 );
               })}
             </div>
@@ -208,7 +279,7 @@ export default function NewProjectPage() {
                 value={title}
                 onChange={(e) => {
                   setTitle(e.target.value);
-                  setSelectedPreset(null);
+                  setSelectedPresetId(null);
                 }}
                 className="w-full px-4 py-3 bg-white border border-[#BAB7B1] rounded-xl text-sm text-[#231F20] focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-all"
                 disabled={loading}
@@ -254,8 +325,8 @@ export default function NewProjectPage() {
                 <p className="text-xs font-bold text-[#231F20]">
                   {fileName
                     ? `File Selected: ${fileName}`
-                    : selectedPreset
-                    ? `Preset Loaded: ${selectedPreset}`
+                    : selectedPresetId
+                    ? `Preset Loaded: ${SAMPLE_BOOKS.find((b) => b.id === selectedPresetId)?.shortTitle}`
                     : 'Drop your .txt book file here or click to browse'}
                 </p>
                 <p className="text-[11px] text-[#919699] mt-0.5">
@@ -277,7 +348,7 @@ export default function NewProjectPage() {
                 value={bookText}
                 onChange={(e) => {
                   setBookText(e.target.value);
-                  setSelectedPreset(null);
+                  setSelectedPresetId(null);
                 }}
                 className="w-full px-4 py-3 bg-white border border-[#BAB7B1] rounded-xl text-xs font-mono text-[#231F20] focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] leading-relaxed transition-all"
                 disabled={loading}
