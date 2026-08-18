@@ -1,12 +1,39 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs/promises';
 import path from 'path';
+import { cookies } from 'next/headers';
 
-export function getGeminiAI() {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY environment variable is missing');
+/**
+ * Resolves active Gemini API Key from session cookie or environment variable
+ */
+export function resolveApiKey(overrideKey?: string): string {
+  if (overrideKey && overrideKey.trim()) {
+    return overrideKey.trim();
   }
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+  try {
+    const cookieStore = cookies();
+    const sessionKey = cookieStore.get('gemini_api_key')?.value;
+    if (sessionKey && sessionKey.trim()) {
+      return sessionKey.trim();
+    }
+  } catch (err) {
+    // Called outside Next.js request context (e.g. CLI or background script)
+  }
+
+  const envKey = process.env.GEMINI_API_KEY;
+  if (envKey && envKey.trim()) {
+    return envKey.trim();
+  }
+
+  throw new Error(
+    'GEMINI_API_KEY is missing! Please configure GEMINI_API_KEY in .env or paste your key in the top UI bar.'
+  );
+}
+
+export function getGeminiAI(overrideKey?: string) {
+  const apiKey = resolveApiKey(overrideKey);
+  return new GoogleGenerativeAI(apiKey);
 }
 
 /**
@@ -14,10 +41,10 @@ export function getGeminiAI() {
  */
 export async function uploadBookTextFile(
   bookText: string,
-  localFilePath: string
+  localFilePath: string,
+  overrideKey?: string
 ): Promise<string> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY is not configured');
+  const key = resolveApiKey(overrideKey);
 
   // Save book.txt locally first
   await fs.mkdir(path.dirname(localFilePath), { recursive: true });
@@ -59,8 +86,9 @@ export async function generateText(params: {
   bookText?: string;
   fileUri?: string;
   responseSchema?: any;
+  overrideKey?: string;
 }): Promise<string> {
-  const ai = getGeminiAI();
+  const ai = getGeminiAI(params.overrideKey);
 
   const candidateModels = [
     'gemini-flash-latest',
@@ -103,7 +131,6 @@ export async function generateText(params: {
     } catch (err: any) {
       lastError = err;
       console.warn(`Gemini model ${modelName} failed or quota exceeded, switching to next candidate:`, err.message);
-      // Wait 1s before trying next candidate model
       await new Promise((r) => setTimeout(r, 1000));
     }
   }
@@ -118,10 +145,15 @@ export async function generateText(params: {
 export async function generateAndSaveImage(
   prompt: string,
   outputPath: string,
-  aspectRatio: '3:4' | '16:9' = '3:4'
+  aspectRatio: '3:4' | '16:9' = '3:4',
+  overrideKey?: string
 ): Promise<string> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY is missing');
+  let key: string;
+  try {
+    key = resolveApiKey(overrideKey);
+  } catch (err) {
+    key = 'dummy_key';
+  }
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 

@@ -18,6 +18,7 @@ import {
 } from '@phosphor-icons/react';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
+import ApiKeyBadge from '@/components/ui/ApiKeyBadge';
 import { useToast } from '@/components/ui/Toast';
 
 interface CharacterItem {
@@ -173,6 +174,7 @@ export default function ProjectsPage() {
           </div>
 
           <div className="flex items-center gap-4">
+            <ApiKeyBadge />
             <Link href="/projects/new">
               <AnimatedButton variant="primary" size="sm" className="gap-1.5">
                 <Plus weight="bold" className="w-4 h-4" />

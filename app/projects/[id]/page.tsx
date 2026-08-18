@@ -10,6 +10,7 @@ import ChapterCard from '@/components/cards/ChapterCard';
 import StepAction from '@/components/pipeline/StepAction';
 import { ToastProvider, useToast } from '@/components/ui/Toast';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
+import ApiKeyBadge from '@/components/ui/ApiKeyBadge';
 
 interface ProjectState {
   id: string;
@@ -188,13 +189,16 @@ function ProjectDetailContent() {
           >
             ← Catalog
           </Link>
-          <div className="text-right">
-            <span className="text-[10px] font-mono font-bold text-[#FF6B00] uppercase tracking-widest block">
-              STUDIO WORKSPACE
-            </span>
-            <span className="text-[11px] text-[#595959] font-mono">
-              Created {new Date(project.createdAt).toLocaleDateString()}
-            </span>
+          <div className="flex items-center gap-4">
+            <ApiKeyBadge />
+            <div className="text-right hidden sm:block">
+              <span className="text-[10px] font-mono font-bold text-[#FF6B00] uppercase tracking-widest block">
+                STUDIO WORKSPACE
+              </span>
+              <span className="text-[11px] text-[#595959] font-mono">
+                Created {new Date(project.createdAt).toLocaleDateString()}
+              </span>
+            </div>
           </div>
         </div>
       </header>
