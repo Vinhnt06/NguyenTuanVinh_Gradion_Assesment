@@ -132,22 +132,22 @@ export default function ProjectsCatalogPage() {
     switch (status) {
       case 'done':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 border border-emerald-300 text-emerald-800 text-[11px] font-bold rounded-full uppercase tracking-wider">
-            <CheckCircle weight="fill" className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#0D0D10]/85 border border-emerald-500/40 text-emerald-400 text-[11px] font-bold rounded-full uppercase tracking-wider shadow-md backdrop-blur-md">
+            <CheckCircle weight="fill" className="w-3.5 h-3.5 text-emerald-400" />
             Completed
           </span>
         );
       case 'in_progress':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-bold rounded-full uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00] animate-ping" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#0D0D10]/85 border border-[#FF6B00]/40 text-[#FF9D54] text-[11px] font-bold rounded-full uppercase tracking-wider shadow-md backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B00] animate-pulse" />
             In Progress
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-200 border border-gray-300 text-gray-700 text-[11px] font-bold rounded-full uppercase tracking-wider">
-            <Clock weight="bold" className="w-3.5 h-3.5 text-gray-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#0D0D10]/85 border border-gray-600/40 text-gray-300 text-[11px] font-bold rounded-full uppercase tracking-wider shadow-md backdrop-blur-md">
+            <Clock weight="bold" className="w-3.5 h-3.5 text-gray-400" />
             Draft
           </span>
         );
