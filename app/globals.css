@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --grad-orange: #FF6B00;
+  --grad-orange-hover: #E85F00;
+  --grad-orange-light: #FFA861;
+  --grad-orange-pale: #FFC391;
+  --grad-orange-deep: #3A160A;
+
+  --grad-ink: #231F20;
+  --grad-ink-body: #434343;
+  --grad-ink-2: #595959;
+  --grad-ink-3: #919699;
+  --grad-line: #BAB7B1;
+  --grad-paper: #F2EEE7;
+  --grad-paper-2: #F8F8F8;
+  --grad-white: #FFFFFF;
+  --grad-black: #1D1C1D;
+
+  --fg-1: var(--grad-ink);
+  --fg-2: var(--grad-ink-2);
+  --fg-3: var(--grad-ink-3);
+  --bg-1: var(--grad-white);
+  --bg-2: var(--grad-paper);
+  --bg-3: var(--grad-paper-2);
+  --bg-accent-soft: #FFEEDF;
+
+  --font-sans: "Noto Sans", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-3);
+  color: var(--fg-1);
+  min-height: 100vh;
+  margin: 0;
+}

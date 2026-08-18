@@ -14,8 +14,8 @@ build/
 out/
 
 # Storage & generated media (local storage)
-storage/uploads/
-storage/generated/
+storage/
+storage_test/
 *.log
 
 # OS & IDE junk
