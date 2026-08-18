@@ -88,26 +88,25 @@ export default function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModal
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-y-auto">
+      {/* Outer fixed overlay: covers full viewport, centers content */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
+          className="absolute inset-0 bg-black/75 backdrop-blur-md"
         />
 
-        {/* Modal Centering Container */}
-        <div className="flex min-h-full items-center justify-center p-4 sm:p-6 text-center">
-          {/* Modal Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 0 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative my-8 w-full max-w-lg bg-[#141416] border border-[#33333E] rounded-3xl p-6 lg:p-8 shadow-2xl text-left text-white overflow-hidden z-10"
-          >
+        {/* Modal Card — sits on top of backdrop via relative z-index */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 16 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-lg bg-[#141416] border border-[#33333E] rounded-3xl p-6 lg:p-8 shadow-2xl text-left text-white overflow-y-auto max-h-[90vh] z-10"
+        >
             {/* Ambient Glow */}
             <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#FF6B00]/15 rounded-full blur-3xl pointer-events-none" />
 
@@ -217,7 +216,6 @@ export default function ApiKeyModal({ isOpen, onClose, onKeySaved }: ApiKeyModal
               </div>
             </form>
           </motion.div>
-        </div>
       </div>
     </AnimatePresence>
   );
