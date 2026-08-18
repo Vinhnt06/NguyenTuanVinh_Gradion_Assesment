@@ -218,7 +218,7 @@ export default function ProjectDetailPage() {
               Generated Art Style
             </h3>
             <p className="text-base font-semibold text-[#231F20] leading-relaxed">
-              "{styleResult}"
+              &quot;{styleResult}&quot;
             </p>
           </div>
         )}

@@ -95,7 +95,7 @@ export default function NewProjectPage() {
         <div className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-2xl p-8 shadow-sm">
           <h2 className="text-2xl font-bold mb-1">Start a new illustration project</h2>
           <p className="text-xs text-[#595959] mb-6">
-            Give it a title, then paste the book's text or upload a .txt file.
+            Give it a title, then paste the book&apos;s text or upload a .txt file.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">

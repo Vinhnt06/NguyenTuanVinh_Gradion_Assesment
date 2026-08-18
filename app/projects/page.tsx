@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -21,11 +21,7 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const res = await fetch('/api/projects');
       if (res.status === 401) {
@@ -40,7 +36,11 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const handleSignOut = async () => {
     await fetch('/api/auth', { method: 'DELETE' });
@@ -120,7 +120,7 @@ export default function ProjectsPage() {
           <div className="bg-[#F2EEE7] border border-[#BAB7B1] rounded-2xl p-12 text-center">
             <h3 className="text-lg font-bold mb-2">No Projects Yet</h3>
             <p className="text-sm text-[#595959] mb-6 max-w-md mx-auto">
-              Create your first project by adding a book's title and pasting its text or uploading a .txt file.
+              Create your first project by adding a book&apos;s title and pasting its text or uploading a .txt file.
             </p>
             <Link
               href="/projects/new"
