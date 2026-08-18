@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { PencilSimple } from '@phosphor-icons/react';
 import Stepper from '@/components/pipeline/Stepper';
 import CharacterCard from '@/components/cards/CharacterCard';
 import ChapterCard from '@/components/cards/ChapterCard';
@@ -39,10 +40,38 @@ function ProjectDetailContent() {
 
   const [project, setProject] = useState<ProjectState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [userStyle, setUserStyle] = useState('');
-  const [actionLoading, setActionLoading] = useState(false);
   const [showFullBook, setShowFullBook] = useState(false);
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+
+  const handleUpdateTitle = async () => {
+    if (!newTitle.trim() || newTitle.trim() === project?.title) {
+      setIsEditingTitle(false);
+      return;
+    }
+    setIsSavingTitle(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update title');
+      setProject(data.project);
+      showToast('Project Title Updated ✓', 'Saved new title to disk', 'success');
+      setIsEditingTitle(false);
+    } catch (err: any) {
+      showToast('Rename Error', err.message, 'error');
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
 
   const fetchProject = useCallback(async () => {
     try {
@@ -216,7 +245,45 @@ function ProjectDetailContent() {
             <span className="text-[11px] font-bold text-[#919699] uppercase tracking-wider block">
               ACTIVE BOOK PIPELINE
             </span>
-            <h1 className="text-3xl font-extrabold text-[#231F20] tracking-tight">{project.title}</h1>
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="text"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleUpdateTitle()}
+                  className="px-3 py-1 bg-white border border-[#FF6B00] rounded-xl text-xl font-extrabold text-[#231F20] focus:outline-none focus:ring-1 focus:ring-[#FF6B00]"
+                  autoFocus
+                />
+                <button
+                  onClick={handleUpdateTitle}
+                  disabled={isSavingTitle}
+                  className="px-3 py-1 bg-[#FF6B00] text-white rounded-xl text-xs font-bold hover:bg-[#FFA861] transition-colors"
+                >
+                  {isSavingTitle ? 'Saving...' : 'Save ✓'}
+                </button>
+                <button
+                  onClick={() => setIsEditingTitle(false)}
+                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 group">
+                <h1 className="text-3xl font-extrabold text-[#231F20] tracking-tight">{project.title}</h1>
+                <button
+                  onClick={() => {
+                    setNewTitle(project.title);
+                    setIsEditingTitle(true);
+                  }}
+                  title="Edit Project Title"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-[#FF6B00] hover:bg-[#F2EEE7] transition-all opacity-70 group-hover:opacity-100"
+                >
+                  <PencilSimple weight="bold" className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono px-3 py-1 bg-[#F2EEE7] border border-[#BAB7B1] rounded-full font-bold">
