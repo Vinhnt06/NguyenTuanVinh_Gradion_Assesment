@@ -377,7 +377,10 @@ export default function ProjectsCatalogPage() {
                   </div>
 
                   {/* Card Footer CTA */}
-                  <div className="px-5 py-3.5 bg-[#E8E2D7] border-t border-[#BAB7B1] flex justify-between items-center text-xs font-bold text-[#231F20] group-hover:bg-[#FF6B00] group-hover:text-white transition-colors">
+                  <div
+                    onClick={() => router.push(`/projects/${project.id}`)}
+                    className="px-5 py-3.5 bg-[#E8E2D7] border-t border-[#BAB7B1] flex justify-between items-center text-xs font-bold text-[#231F20] group-hover:bg-[#FF6B00] group-hover:text-white transition-colors cursor-pointer"
+                  >
                     <span>
                       {project.status === 'done'
                         ? 'View Studio Artwork'

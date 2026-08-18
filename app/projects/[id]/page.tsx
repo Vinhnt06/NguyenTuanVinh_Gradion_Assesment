@@ -179,7 +179,12 @@ function ProjectDetailContent() {
   const chapters = project.stepResults[4]?.illustrations || project.stepResults[3]?.chapters || [];
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] text-[#231F20] pb-16">
+    <div className="min-h-screen bg-[#F8F8F8] text-[#231F20] pb-16 relative overflow-hidden">
+      {/* GPU-Accelerated Dynamic Ambient Background Orbs & Pattern */}
+      <div className="fixed top-0 left-1/4 w-[650px] h-[650px] bg-[#FF6B00]/7 rounded-full blur-[160px] pointer-events-none transform-gpu animate-pulse" />
+      <div className="fixed bottom-0 right-1/4 w-[650px] h-[650px] bg-[#FFA861]/7 rounded-full blur-[160px] pointer-events-none transform-gpu" />
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#00000004_1px,transparent_1px),linear-gradient(to_bottom,#00000004_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] pointer-events-none" />
+
       {/* Header Bar */}
       <header className="border-b border-[#BAB7B1] bg-[#F2EEE7] px-6 py-4 sticky top-0 z-30 shadow-2xs backdrop-blur-md bg-[#F2EEE7]/90">
         <div className="max-w-[1280px] mx-auto flex justify-between items-center">
