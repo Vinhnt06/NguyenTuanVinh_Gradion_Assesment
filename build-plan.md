@@ -17,14 +17,14 @@
 
 ## PHASE 1 — Foundation (Day 1 Morning, ~3h)
 
-- [ ] **P1-1:** Run `npx create-next-app@latest ./` with TypeScript + App Router → Verify: `npm run dev` opens on `localhost:3000`
-- [ ] **P1-2:** Create `.env.example` with `GEMINI_API_KEY` + `SESSION_SECRET` + `STORAGE_PATH` → Verify: file exists, no real values
-- [ ] **P1-3:** Write `lib/storage.ts` — atomic JSON read/write (temp→rename) + per-project async mutex → Verify: unit test passes
-- [ ] **P1-4:** Write `lib/auth.ts` — JWT cookie session (email+name → userId, no password) → Verify: `POST /api/auth` returns token cookie
-- [ ] **P1-5:** Build Identity screen `/` (Email + Name form with validation) → Verify: invalid email shows error, valid submits OK
-- [ ] **P1-6:** Build `GET /api/projects` + `POST /api/projects` (create project, upload/paste book text) → Verify: project state.json created on disk
-- [ ] **P1-7:** Build Project list screen `/projects` (title, date, status pill, empty state) → Verify: renders with mock data
-- [ ] **P1-8:** Write first backend tests — pipeline ordering + storage atomic write → Verify: `./test.sh` passes
+- [x] **P1-1:** Run `npx create-next-app@latest ./` with TypeScript + App Router → Verify: `npm run dev` opens on `localhost:3000`
+- [x] **P1-2:** Create `.env.example` with `GEMINI_API_KEY` + `SESSION_SECRET` + `STORAGE_PATH` → Verify: file exists, no real values
+- [x] **P1-3:** Write `lib/storage.ts` — atomic JSON read/write (temp→rename) + per-project async mutex → Verify: unit test passes
+- [x] **P1-4:** Write `lib/auth.ts` — JWT cookie session (email+name → userId, no password) → Verify: `POST /api/auth` returns token cookie
+- [x] **P1-5:** Build Identity screen `/` (Email + Name form with validation) → Verify: invalid email shows error, valid submits OK
+- [x] **P1-6:** Build `GET /api/projects` + `POST /api/projects` (create project, upload/paste book text) → Verify: project state.json created on disk
+- [x] **P1-7:** Build Project list screen `/projects` (title, date, status pill, empty state) → Verify: renders with mock data
+- [x] **P1-8:** Write first backend tests — pipeline ordering + storage atomic write → Verify: `./test.sh` passes
 
 ---
 
