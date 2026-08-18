@@ -127,29 +127,35 @@ export async function generateAndSaveImage(
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
-  try {
-    // REST API call for Imagen image generation
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${key}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        instances: [{ prompt }],
-        parameters: { sampleCount: 1, aspectRatio: '3:4' },
-      }),
-    });
+  const imagenEndpoints = [
+    'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict',
+  ];
 
-    if (res.ok) {
-      const data = await res.json();
-      const base64Image = data.predictions?.[0]?.bytesBase64Encoded;
-      if (base64Image) {
-        const imageBuffer = Buffer.from(base64Image, 'base64');
-        await fs.writeFile(outputPath, imageBuffer);
-        return outputPath;
+  for (const urlEndpoint of imagenEndpoints) {
+    try {
+      const url = `${urlEndpoint}?key=${key}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [{ prompt }],
+          parameters: { sampleCount: 1, aspectRatio: '3:4' },
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const base64Image = data.predictions?.[0]?.bytesBase64Encoded;
+        if (base64Image) {
+          const imageBuffer = Buffer.from(base64Image, 'base64');
+          await fs.writeFile(outputPath, imageBuffer);
+          return outputPath;
+        }
       }
+    } catch (err) {
+      // Try next endpoint or proceed to fallback
     }
-  } catch (err) {
-    // Imagen call failed or model unavailable on key, proceed to fallback
   }
 
   // Fallback Vector SVG Artwork Card (3:4 aspect ratio, 600x800 viewBox)
