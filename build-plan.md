@@ -46,40 +46,40 @@
 
 ## PHASE 3 — Frontend Pipeline UI (Day 2, ~5h)
 
-- [ ] **P3-1:** Build `/projects/new` — title input + file upload (.txt) + paste textarea + validation → Verify: empty fields show errors
-- [ ] **P3-2:** Build `<Stepper />` component — 5 steps, done ✓ / current ● / pending ○ → Verify: renders correct state for each step index
-- [ ] **P3-3:** Build `<CharacterCard />` — name, prompt text, portrait placeholder → portrait image on load → Verify: shows placeholder then swaps to image
-- [ ] **P3-4:** Build `<ChapterCard />` — chapter name, prompt text, illustration → Verify: same pattern as CharacterCard
-- [ ] **P3-5:** Build `<StepAction />` — button idle / spinner+step-name / error+retry / success → Verify: all 4 states render correctly
-- [ ] **P3-6:** Build `/projects/[id]` page — title, date, book text (full, readable), stepper, character cards, chapter cards, StepAction → Verify: full pipeline visible
-- [ ] **P3-7:** Add polling loop — `GET /api/projects/:id` every 2s while any step is `running` → Verify: UI updates after step completes without manual refresh
-- [ ] **P3-8:** Stuck-step recovery UI — if `stepStartedAt` > 5min → show "Step appears stuck" + Reset button → Verify: Reset button calls `/reset` endpoint
-- [ ] **P3-9:** Sign out button — clear session cookie + redirect to `/` → Verify: back to identity screen after sign out
-- [ ] **P3-10:** Frontend component tests — `<Stepper />` states, `<StepAction />` loading/error, `<ProjectRow />` status pill → Verify: `./test.sh` FE tests pass
+- [x] **P3-1:** Build `/projects/new` — title input + file upload (.txt) + paste textarea + validation → Verify: empty fields show errors
+- [x] **P3-2:** Build `<Stepper />` component — 5 steps, done ✓ / current ● / pending ○ → Verify: renders correct state for each step index
+- [x] **P3-3:** Build `<CharacterCard />` — name, prompt text, portrait placeholder → portrait image on load → Verify: shows placeholder then swaps to image
+- [x] **P3-4:** Build `<ChapterCard />` — chapter name, prompt text, illustration → Verify: same pattern as CharacterCard
+- [x] **P3-5:** Build `<StepAction />` — button idle / spinner+step-name / error+retry / success → Verify: all 4 states render correctly
+- [x] **P3-6:** Build `/projects/[id]` page — title, date, book text (full, readable), stepper, character cards, chapter cards, StepAction → Verify: full pipeline visible
+- [x] **P3-7:** Add polling loop — `GET /api/projects/:id` every 2s while any step is `running` → Verify: UI updates after step completes without manual refresh
+- [x] **P3-8:** Stuck-step recovery UI — if `stepStartedAt` > 5min → show "Step appears stuck" + Reset button → Verify: Reset button calls `/reset` endpoint
+- [x] **P3-9:** Sign out button — clear session cookie + redirect to `/` → Verify: back to identity screen after sign out
+- [x] **P3-10:** Frontend component tests — `<Stepper />` states, `<StepAction />` loading/error, `<ProjectRow />` status pill → Verify: `./test.sh` FE tests pass
 
 ---
 
 ## PHASE 4 — Polish & Deliverables (Day 3, ~4h)
 
-- [ ] **P4-1:** Apply Gradion Design System tokens from `app-demo.html` — Orange `#FF6B00`, Noto Sans, card styles, status pills → Verify: visually matches/beats the demo
-- [ ] **P4-2:** Responsive layout, keyboard-accessible buttons, empty/loading/error states on all screens → Verify: works at 375px mobile width
-- [ ] **P4-3:** Write `start.sh` + `test.sh` → Verify: `./start.sh` starts app; `./test.sh` runs all tests
-- [ ] **P4-4:** Write `README.md` — prerequisites, env vars, architecture overview, start & test commands → Verify: reviewer can follow instructions cold
-- [ ] **P4-5:** Write `TESTING.md` — strategy (FE+BE) + paste real test run output → Verify: contains actual test output, not invented
-- [ ] **P4-6:** Final real Gemini API end-to-end walkthrough → all 5 steps complete → Verify: illustrations are generated
-- [ ] **P4-7:** Security check — no API key in any committed file → Verify: `git grep GEMINI_API_KEY` returns only `.env.example`
-- [ ] **P4-8:** Final push to GitHub → Verify: GitHub repo clean, contributor = Vinhnt06 only
+- [x] **P4-1:** Apply Gradion Design System tokens from `app-demo.html` — Orange `#FF6B00`, Noto Sans, card styles, status pills → Verify: visually matches/beats the demo
+- [x] **P4-2:** Responsive layout, keyboard-accessible buttons, empty/loading/error states on all screens → Verify: works at 375px mobile width
+- [x] **P4-3:** Write `start.sh` + `test.sh` → Verify: `./start.sh` starts app; `./test.sh` runs all tests
+- [x] **P4-4:** Write `README.md` — prerequisites, env vars, architecture overview, start & test commands → Verify: reviewer can follow instructions cold
+- [x] **P4-5:** Write `TESTING.md` — strategy (FE+BE) + paste real test run output → Verify: contains actual test output, not invented
+- [x] **P4-6:** Final real Gemini API end-to-end walkthrough → all 5 steps complete → Verify: illustrations are generated
+- [x] **P4-7:** Security check — no API key in any committed file → Verify: `git grep GEMINI_API_KEY` returns only `.env.example`
+- [x] **P4-8:** Final push to GitHub → Verify: GitHub repo clean, contributor = Vinhnt06 only
 
 ---
 
 ## Done When
-- [ ] `./start.sh` starts app with zero extra steps
-- [ ] `./test.sh` runs all FE + BE tests (green)
-- [ ] All 5 pipeline steps work end-to-end with real Gemini API
-- [ ] Resume works: kill server mid-step, restart, project shows correct state
-- [ ] Double-click guard: second "Run" during running step → no duplicate API call
-- [ ] `DECISIONS.md` has 6 decisions + ≥3 AI overrides + one-more-day answer
-- [ ] GitHub repo: only `Vinhnt06` as contributor, incremental commits
+- [x] `./start.sh` starts app with zero extra steps
+- [x] `./test.sh` runs all FE + BE tests (green)
+- [x] All 5 pipeline steps work end-to-end with real Gemini API
+- [x] Resume works: kill server mid-step, restart, project shows correct state
+- [x] Double-click guard: second "Run" during running step → no duplicate API call
+- [x] `DECISIONS.md` has 6 decisions + ≥3 AI overrides + one-more-day answer
+- [x] GitHub repo: only `Vinhnt06` as contributor, incremental commits
 
 ---
 
