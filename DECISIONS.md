@@ -87,9 +87,32 @@
 
 ---
 
+## Decision 8: Model Queue Rotation & 45s Timeout for Resilient Batch Image Generation (AI Override)
+
+**Who proposed it:** AI initially used a single image model queue (`flux`) with a 25s HTTP timeout.
+
+**Why I pushed back:** During Step 3 (Portraits), generating Character 1 and Character 2 back-to-back using the same model (`flux`) caused the public AI server to rate-limit Character 2, causing `This operation was aborted` errors at 25 seconds.
+
+**What I implemented instead:** 
+1. **Model Queue Rotation (`lib/gemini.ts`):** Character 0 rotates model priority `flux` ➔ `turbo` ➔ `sdxl`, while Character 1 rotates `turbo` ➔ `sdxl` ➔ `flux`. This routes back-to-back portrait requests to separate AI engine queues, eliminating queue contention.
+2. **Extended Timeout (45s):** High-res 600x800 FLUX portraits require ~30–35s. Extended engine timeout from 25s to 45s to eliminate premature aborts.
+3. **SVG Auto-Recovery Retry:** If an engine temporarily returns an SVG fallback, `lib/pipeline.ts` pauses 3 seconds and performs an automatic 2nd attempt in the backend before completing the step.
+
+---
+
+## Decision 9: Frosted Glass Status Badges & Fullscreen Image Lightbox Modal
+
+**Who proposed it:** User requested enhanced status badge harmony and interactive image previewing.
+
+**What I implemented:**
+1. **Frosted Dark Glass Badges:** Replaced pastel badges over dark thumbnail images with dark frosted glass pills (`bg-[#0D0D10]/85 border-emerald-500/40 text-emerald-400 backdrop-blur-md`) for high contrast and visual elegance.
+2. **Fullscreen Image Lightbox Modal:** Built `components/ui/ImageLightboxModal.tsx` rendered via React `createPortal` to `document.body`. Features 1-click **Copy AI Prompt**, **Download Image**, HD zoom, and keyboard ESC navigation.
+
+---
+
 ## If You Had One More Day
 
-If I had one more day, I would implement **Server-Sent Events (SSE) for real-time step progress** and **Interactive Image Editing**.
+If I had one more day, I would implement **Server-Sent Events (SSE) for real-time step progress** and **Interactive Canvas Cropping**.
 
 Currently the UI polls `GET /api/projects/:id` every 2 seconds, which works cleanly but creates ~2s lag. SSE would push updates directly as each image lands on disk. Additionally, I would add a canvas cropping tool allowing users to tweak generated portraits directly in the studio workspace.
 
