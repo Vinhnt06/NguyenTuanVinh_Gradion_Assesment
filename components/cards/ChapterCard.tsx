@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowClockwise } from '@phosphor-icons/react';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
 
 interface ChapterCardProps {
@@ -61,9 +60,8 @@ export default function ChapterCard({
                   <button
                     disabled={isRegenerating}
                     onClick={handleRegenerate}
-                    className="text-xs font-mono font-bold px-3 py-1 bg-[#FF6B00] hover:bg-[#FFA861] text-white rounded-md backdrop-blur-xs transition-colors flex items-center gap-1.5 shadow"
+                    className="text-xs font-mono font-bold px-3 py-1 bg-[#FF6B00] hover:bg-[#FFA861] text-white rounded-md backdrop-blur-xs transition-colors shadow"
                   >
-                    <ArrowClockwise className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
                     {isRegenerating ? 'Generating...' : 'Re-gen AI Scene'}
                   </button>
                 )}
@@ -73,7 +71,7 @@ export default function ChapterCard({
                   rel="noreferrer"
                   className="text-xs font-semibold px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-md backdrop-blur-xs transition-colors"
                 >
-                  View HD ↗
+                  View HD
                 </a>
               </div>
             </div>
@@ -89,13 +87,11 @@ export default function ChapterCard({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 p-8 text-center">
-            <div className="w-12 h-12 rounded-full bg-[#E8E2E0] flex items-center justify-center text-[#919699] font-bold text-lg">
-              🖼️
-            </div>
-            <span className="text-xs text-[#919699] font-medium">
-              Scene Illustration Pending (Step 5)
+          <div className="flex flex-col items-center gap-1.5 p-8 text-center">
+            <span className="text-xs font-mono font-bold text-[#8E8E93] uppercase tracking-wider">
+              SCENE ILLUSTRATION PENDING
             </span>
+            <span className="text-[11px] text-[#919699]">Run Step 5 to Generate</span>
           </div>
         )}
       </div>
@@ -113,9 +109,9 @@ export default function ChapterCard({
                 disabled={isRegenerating}
                 onClick={handleRegenerate}
                 title="Re-generate HD AI Scene"
-                className="p-1 text-[#8E8E93] hover:text-[#FF6B00] transition-colors rounded hover:bg-black/5"
+                className="text-[11px] font-mono font-bold text-[#8E8E93] hover:text-[#FF6B00] transition-colors"
               >
-                <ArrowClockwise className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
+                {isRegenerating ? '...' : 'Re-gen'}
               </button>
             )}
           </div>
@@ -134,7 +130,7 @@ export default function ChapterCard({
             onClick={() => setExpanded(!expanded)}
             className="text-[11px] font-semibold text-[#FF6B00] hover:underline mt-1 focus:outline-none"
           >
-            {expanded ? 'Collapse Description ▲' : 'Read Full Scene Prompt ▼'}
+            {expanded ? 'Collapse Description' : 'Read Full Scene Prompt'}
           </button>
         )}
       </div>

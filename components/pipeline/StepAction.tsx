@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkle, ArrowClockwise, Warning, CheckCircle } from '@phosphor-icons/react';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 
 interface StepActionProps {
@@ -72,7 +71,6 @@ export default function StepAction({
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 95) return 95;
-        // Step 2 & 4 take slightly longer for AI images
         const increment = currentStep === 2 || currentStep === 4 ? 3 : 7;
         return Math.min(prev + increment, 95);
       });
@@ -87,11 +85,10 @@ export default function StepAction({
   if (currentStep > 4) {
     return (
       <div className="bg-[#1C1C22] text-white p-6 rounded-2xl text-center shadow-lg border border-[#FF6B00]/40 relative overflow-hidden">
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#FF6B00]/20 rounded-full blur-2xl pointer-events-none" />
-        <div className="w-10 h-10 rounded-full bg-[#FF6B00]/20 text-[#FF6B00] border border-[#FF6B00]/40 flex items-center justify-center mx-auto mb-3">
-          <CheckCircle weight="fill" className="w-6 h-6 text-[#FF6B00]" />
+        <div className="text-xs font-mono font-bold text-[#FF6B00] uppercase tracking-widest mb-1.5">
+          PIPELINE STATUS
         </div>
-        <h3 className="text-xl font-bold mb-1 tracking-tight text-white">🎉 All 5 Steps Completed!</h3>
+        <h3 className="text-xl font-bold mb-1 tracking-tight text-white">All 5 Steps Completed</h3>
         <p className="text-xs text-[#8E8E93] max-w-md mx-auto leading-relaxed">
           All 5 generative pipeline steps have successfully executed. Character portraits and chapter scene illustrations are stored atomically and ready for production.
         </p>
@@ -126,7 +123,7 @@ export default function StepAction({
           {isStuck ? (
             <div className="flex flex-col sm:flex-row items-end gap-2 w-full">
               <span className="text-xs text-amber-700 font-medium">
-                ⚠️ Step appears stuck (&gt;5 mins)
+                Step appears stuck (&gt;5 mins)
               </span>
               <AnimatedButton
                 variant="amber"
@@ -139,9 +136,8 @@ export default function StepAction({
             <AnimatedButton
               variant="danger"
               onClick={() => onRetryStep(currentStep)}
-              className="w-full sm:w-auto gap-2"
+              className="w-full sm:w-auto"
             >
-              <ArrowClockwise weight="bold" className="w-4 h-4" />
               Retry {STEP_NAMES[currentStep]}
             </AnimatedButton>
           ) : isRunning ? (
@@ -149,7 +145,7 @@ export default function StepAction({
               variant="primary"
               loading={true}
               disabled={true}
-              className="w-full sm:w-auto gap-2"
+              className="w-full sm:w-auto"
             >
               Executing {STEP_NAMES[currentStep]}...
             </AnimatedButton>
@@ -157,7 +153,7 @@ export default function StepAction({
             <AnimatedButton
               variant="primary"
               onClick={() => onRunStep(currentStep)}
-              className="w-full sm:w-auto gap-2"
+              className="w-full sm:w-auto"
             >
               Run {STEP_NAMES[currentStep]} →
             </AnimatedButton>
@@ -189,7 +185,6 @@ export default function StepAction({
               style={{ width: `${progress}%` }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
             >
-              {/* Shimmer Light Highlight */}
               <div className="absolute inset-0 bg-white/20 animate-pulse" />
             </motion.div>
           </div>
@@ -198,12 +193,9 @@ export default function StepAction({
 
       {/* Error message detail if failed */}
       {isFailed && stepError && (
-        <div className="mt-4 p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-medium flex items-start gap-2.5">
-          <Warning className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold mb-0.5">Execution Error (409 / Retry Guard):</p>
-            <p className="font-mono text-[11px] leading-relaxed">{stepError}</p>
-          </div>
+        <div className="mt-4 p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-medium">
+          <p className="font-bold mb-0.5">Execution Error (409 / Retry Guard):</p>
+          <p className="font-mono text-[11px] leading-relaxed">{stepError}</p>
         </div>
       )}
     </div>

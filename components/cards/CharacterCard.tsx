@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowClockwise } from '@phosphor-icons/react';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
 
 interface CharacterCardProps {
@@ -61,9 +60,8 @@ export default function CharacterCard({
                 <button
                   disabled={isRegenerating}
                   onClick={handleRegenerate}
-                  className="text-[10px] font-mono font-bold px-2.5 py-1 bg-[#FF6B00] hover:bg-[#FFA861] text-white rounded shadow transition-colors flex items-center gap-1 shrink-0"
+                  className="text-[10px] font-mono font-bold px-2.5 py-1 bg-[#FF6B00] hover:bg-[#FFA861] text-white rounded shadow transition-colors shrink-0"
                 >
-                  <ArrowClockwise className={`w-3 h-3 ${isRegenerating ? 'animate-spin' : ''}`} />
                   {isRegenerating ? 'Generating...' : 'Re-gen AI Picture'}
                 </button>
               )}
@@ -80,11 +78,11 @@ export default function CharacterCard({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 p-6 text-center">
-            <div className="w-10 h-10 rounded-full bg-[#E8E2E0] flex items-center justify-center text-[#919699] font-bold text-sm">
-              👤
-            </div>
-            <span className="text-xs text-[#919699] font-medium">Portrait Pending (Step 3)</span>
+          <div className="flex flex-col items-center gap-1.5 p-6 text-center">
+            <span className="text-xs font-mono font-bold text-[#8E8E93] uppercase tracking-wider">
+              PORTRAIT PENDING
+            </span>
+            <span className="text-[11px] text-[#919699]">Run Step 3 to Generate</span>
           </div>
         )}
       </div>
@@ -93,7 +91,7 @@ export default function CharacterCard({
       <div>
         <div className="flex items-center justify-between mb-1">
           <h4 className="text-base font-bold text-[#231F20] tracking-tight">{character.name}</h4>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold px-2 py-0.5 bg-[#FF6B00]/10 text-[#FF6B00] rounded uppercase">
               Character
             </span>
@@ -102,9 +100,9 @@ export default function CharacterCard({
                 disabled={isRegenerating}
                 onClick={handleRegenerate}
                 title="Re-generate HD AI Picture"
-                className="p-1 text-[#8E8E93] hover:text-[#FF6B00] transition-colors rounded hover:bg-black/5"
+                className="text-[11px] font-mono font-bold text-[#8E8E93] hover:text-[#FF6B00] transition-colors"
               >
-                <ArrowClockwise className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
+                {isRegenerating ? '...' : 'Re-gen'}
               </button>
             )}
           </div>
@@ -123,7 +121,7 @@ export default function CharacterCard({
             onClick={() => setExpanded(!expanded)}
             className="text-[11px] font-semibold text-[#FF6B00] hover:underline mt-1 focus:outline-none"
           >
-            {expanded ? 'Show Less ▲' : 'Read Full Prompt ▼'}
+            {expanded ? 'Show Less' : 'Read Full Prompt'}
           </button>
         )}
       </div>
