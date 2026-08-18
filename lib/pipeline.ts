@@ -156,6 +156,9 @@ export async function executePipelineStep(
         const portraits: CharacterItem[] = [];
 
         for (let i = 0; i < chars.length; i++) {
+          if (i > 0) {
+            await new Promise((r) => setTimeout(r, 2000));
+          }
           const char = chars[i];
           const fullPrompt = `${char.prompt}. Art style: ${style}. Character portrait, high quality.`;
           const imageFileName = `portrait-${i}.png`;
@@ -235,6 +238,9 @@ export async function executePipelineStep(
         const illustrations: ChapterItem[] = [];
 
         for (let i = 0; i < chapters.length; i++) {
+          if (i > 0) {
+            await new Promise((r) => setTimeout(r, 2000));
+          }
           const chap = chapters[i];
           const fullPrompt = `${chap.prompt}. Art style: ${style}. Detailed book scene illustration.`;
           const imageFileName = `illustration-${i}.png`;
